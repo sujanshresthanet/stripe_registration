@@ -1,0 +1,7 @@
+name: Stripe Registration
+type: module
+description: Facilitates paid site registration via a Stripe subscription plan.
+core: 8.x
+package: E-commerce
+dependencies:
+  - stripe_registration

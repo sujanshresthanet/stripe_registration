@@ -1,0 +1,16 @@
+{
+  "name": "drupal/stripe_registration",
+  "type": "drupal-module",
+  "description": "Facilitates paid site registration via a Stripe subscription plan.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/stripe_registration",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/stripe_registration",
+    "source": "http://cgit.drupalcode.org/stripe_registration"
+  },
+  "require": {
+    "drupal/stripe_api": "^8"
+  }
+}

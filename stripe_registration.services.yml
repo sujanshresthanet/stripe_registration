@@ -1,0 +1,15 @@
+services:
+  stripe_registration.stripe_api:
+    class: Drupal\stripe_registration\StripeRegistrationService
+    arguments: ["@config.factory", "@entity_type.manager", "@logger.channel.stripe_registration", "@stripe_api.stripe_api"]
+
+  logger.channel.stripe_registration:
+    parent: logger.channel_base
+    arguments: ['stripe_registration']
+
+  stripe_registration.webhook_subscriber:
+    class: Drupal\stripe_registration\EventSubscriber\WebHookSubscriber
+    arguments: ["@stripe_registration.stripe_api"]
+    tags:
+      - { name: event_subscriber }
+

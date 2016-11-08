@@ -1,0 +1,23 @@
+stripe.stripejs:
+  remote: https://stripe.com/docs/stripe.js
+  version: 2
+  js:
+    https://js.stripe.com/v2: { type: external, minified: true }
+  license:
+    name: Unknown
+stripe.jquery.payment:
+  remote: https://github.com/stripe/jquery.payment
+  version: 2
+  js:
+    https://cdnjs.cloudflare.com/ajax/libs/jquery.payment/2.0.0/jquery.payment.min.js: { type: external, minified: true }
+  license:
+    name: MIT
+    url: https://github.com/stripe/jquery.payment/blob/master/LICENSE
+    gpl-compatible: true
+  dependencies:
+    - core/jquery
+checkout:
+  js:
+    js/checkout.js: {}
+  dependencies:
+    - core/jquery

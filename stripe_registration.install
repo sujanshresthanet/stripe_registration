@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function stripe_registration_install() {
+  stripe_registration_create_stripe_customer_id_field();
+}
+
+/**
+ * Adds the stripe_customer_id field to the user entity.
+ */
+function stripe_registration_create_stripe_customer_id_field() {
+  // Add a stripe_customer_id field to the user entity.
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $field_storage = $entity_type_manager->getStorage('field_storage_config')->load('user.stripe_customer_id');
+  if (!$field_storage) {
+    $field_storage = $entity_type_manager->getStorage('field_storage_config')->create([
+      'entity_type' => 'user',
+      'field_name' => 'stripe_customer_id',
+      'type' => 'string',
+      'cardinality' => 1,
+      'settings' => [],
+      'status' => TRUE,
+    ]);
+    $field_storage->save();
+  }
+
+  $field = $entity_type_manager->getStorage('field_config')->load('user.user.stripe_customer_id');
+  if (!$field) {
+    $field = $entity_type_manager->getStorage('field_config')->create([
+      'field_storage' => $field_storage,
+      'bundle' => 'user',
+      'label' => t('Stripe customer ID'),
+      'settings' => [],
+    ]);
+    $field->save();
+  }
+}

@@ -1,0 +1,10 @@
+entity.stripe_plan.add_form:
+  route_name: entity.stripe_plan.add_form
+  title: 'Add Stripe plan'
+  appears_on:
+    - entity.stripe_plan.collection
+entity.stripe_subscription.add_form:
+  route_name: entity.stripe_subscription.add_form
+  title: 'Add Stripe subscription'
+  appears_on:
+    - entity.stripe_subscription.collection

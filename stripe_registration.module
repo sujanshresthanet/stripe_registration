@@ -1,0 +1,281 @@
+<?php
+
+/**
+ * @file
+ * Contains stripe_registration.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Url;
+use Stripe\Customer;
+use Stripe\Plan;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\stripe_registration\StripeRegistrationService;
+
+/**
+ * Implements hook_help().
+ */
+function stripe_registration_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the stripe_registration module.
+    case 'help.page.stripe_registration':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Facilitates paid site registration via a Stripe subscription plan.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function stripe_registration_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  switch ($form_id) {
+    case 'user_register_form':
+      if (\Drupal::config('stripe_registration.settings')->get('registration')) {
+        stripe_registration_subscribe_form($form, $form_state, $form_id);
+      }
+      break;
+
+    case 'stripe_subscribe_form':
+      stripe_registration_subscribe_form($form, $form_state, $form_id);
+      break;
+
+    case 'stripe_api_admin_form':
+      stripe_registration_admin_form($form, $form_state, $form_id);
+
+      break;
+  }
+}
+
+function stripe_registration_admin_form(array &$form, FormStateInterface $form_state, $form_id) {
+  $config = \Drupal::config('stripe_registration.settings');
+  /** @var \Drupal\stripe_api\StripeApiService $stripe_api */
+  $stripe_api = \Drupal::service('stripe_api.stripe_api');
+
+  $form['registration'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Allow users to subscribe to plans during Drupal account registration'),
+    '#description' => t('If checked, users will be able to subscribe to a plan during user account registration.'),
+    '#default_value' => $config->get('registration') ? $config->get('registration') : FALSE,
+  ];
+  $form['redirect'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Redirect users to Subscription page after login'),
+    '#description' => t('If checked, users will immediately be redirected to the Subscription page after login if 1) They do not already have a subscription, and 2) The request does not already have a redirect query parameter.'),
+    '#default_value' => $config->get('redirect') ? $config->get('redirect') : FALSE,
+  ];
+
+  $form['actions']['sync-plans'] = [
+    '#type' => 'submit',
+    '#value' => t('Sync plans from Stripe'),
+    '#description' => t('This will create new plans and removed plans that no longer exist upstream.'),
+    '#submit' => ['stripe_registration_sync_plans_submit'],
+    '#weight' => 100,
+    '#disabled' => !$stripe_api->getApiKey(),
+  ];
+
+  $form['actions']['submit']['#submit'][] = 'stripe_registration_admin_form_submit';
+}
+
+function stripe_registration_admin_form_submit(array &$form, FormStateInterface $form_state) {
+  $config = \Drupal::configFactory()->getEditable('stripe_registration.settings');
+  $config->set('registration', $form_state->getValue('registration'))->save();
+  $config->set('redirect', $form_state->getValue('redirect'))->save();
+}
+
+function stripe_registration_sync_plans_submit(array &$form, FormStateInterface $form_state) {
+  /** @var StripeRegistrationService $stripe */
+  $stripe = \Drupal::service('stripe_registration.stripe_api');
+  $stripe->syncPlans(TRUE);
+}
+
+/**
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ */
+function stripe_registration_subscribe_form(&$form, FormStateInterface $form_state, $form_id) {
+
+  /** @var \Drupal\stripe_registration\StripeRegistrationService $stripe_registration */
+  $stripe_registration =  \Drupal::service('stripe_registration.stripe_api');
+  $stripe_api =  \Drupal::service('stripe_api.stripe_api');
+
+  $plans = $stripe_registration->loadLocalPlanMultiple();
+  if (!$plans) {
+    $form['message'] = [
+      '#type' => 'markup',
+      '#markup' => t('There are no plans to which you may subscribe.'),
+    ];
+
+    return FALSE;
+  }
+
+  $form['#attached']['library'][] = 'stripe_registration/stripe.stripejs';
+  $form['#attached']['library'][] = 'stripe_registration/stripe.jquery.payment';
+  $form['#attached']['library'][] = 'stripe_registration/checkout';
+  $form['#attached']['drupalSettings']['stripe_registration']['publishable_key'] = $stripe_api->getPubKey();
+  $form['#attached']['drupalSettings']['stripe_registration']['form_id'] = $form_id;
+
+  /** @var Plan[] $options */
+  $options = [];
+  $mode = $stripe_api->getMode();
+
+  /** @var Plan $plan */
+  foreach ($plans as $plan) {
+    if ($plan->livemode->value || $mode !== 'live') {
+      $options[$plan->plan_id->value] = $plan->name->value;
+    }
+  }
+
+  $form['plan'] = [
+    '#type' => 'select',
+    '#title' => t('Plan'),
+    '#options' => $options,
+    '#required' => TRUE,
+  ];
+  if (count($options) == 1) {
+    $first_option = reset($options);
+    $form['plan']['#default_value'] = $first_option;
+  }
+
+  // By omitting a name, the user-supplied data in those fields won't be
+  // passed to your server when the form is submitted. Each element also
+  // includes a data-stripe attribute.
+
+  $form['card_number'] = [
+    '#type' => 'textfield',
+    '#title' => t('Card number'),
+    '#attributes' => [
+      'data-stripe' => 'number',
+    ],
+    '#name' => '',
+  ];
+  $form['exp'] = [
+    '#type' => 'textfield',
+    '#title' => t('MM / YYYY'),
+    '#name' => '',
+    '#size' => 9,
+  ];
+  $form['cvc'] = [
+    '#type' => 'textfield',
+    '#title' => t('CVC'),
+    '#attributes' => [
+      'data-stripe' => 'cvc',
+    ],
+    '#name' => '',
+    '#size' => 4,
+  ];
+  $form['address_zip'] = [
+    '#type' => 'textfield',
+    '#title' => t('Billing zip'),
+    '#attributes' => [
+      'data-stripe' => 'address_zip',
+    ],
+    '#name' => '',
+    '#size' => 5,
+    '#maxlength' => 5,
+  ];
+  $form['stripeToken'] = [
+    '#type' => 'hidden',
+  ];
+  $form['stripe-messages'] = [
+    '#type' => 'container',
+  ];
+
+  if (empty($form['actions']['submit'])) {
+    $form['actions']['#type'] = 'actions';
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Subscribe'),
+      '#button_type' => 'primary',
+    );
+  }
+
+  $form['actions']['submit']['#submit'][] = 'stripe_registration_submit';
+}
+
+/**
+ * Submit callback for user_register_form.
+ */
+function stripe_registration_submit($form, FormStateInterface $form_state) {
+  /** @var \Drupal\stripe_registration\StripeRegistrationService $stripe */
+  $stripe =  \Drupal::service('stripe_registration.stripe_api');
+
+  try {
+    if (empty($form_state->getValue('stripeToken'))) {
+      throw new \Exception("Stripe token is missing!");
+    }
+    if (empty($form_state->getValue('uid'))) {
+      throw new \Exception("Uid is missing!");
+    }
+
+    $customer = \Stripe\Customer::create(array(
+        "source" => $form_state->getValue('stripeToken'),
+        "plan" => $form_state->getValue('plan'),
+        "email" => $form_state->get('email'))
+    );
+
+    if ($customer instanceof Customer) {
+      /** @var Customer $user */
+      $user = \Drupal::entityManager()->getStorage('user')->load($form_state->getValue('uid'));
+      $user->set('stripe_customer_id', $customer->id);
+      $user->save();
+
+      foreach ($customer->subscriptions->data as $subscription) {
+        $stripe->createLocalSubscription($subscription);
+      }
+    }
+  }
+  catch (\Exception $e) {
+    \Drupal::logger('stripe_registration')
+      ->error(t("Could not subscribe user @uid to @plan plan, error:\n@error", [
+        '@uid' => $form_state->getValue('uid'),
+        '@plan' => $form_state->getValue('plan'),
+        '@error' => $e->getMessage(),
+      ]));
+  }
+}
+
+/**
+ * Implements hook_entity_field_access().
+ */
+function stripe_registration_entity_field_access($operation, \Drupal\Core\Field\FieldDefinitionInterface $field_definition, \Drupal\Core\Session\AccountInterface $account, \Drupal\Core\Field\FieldItemListInterface $items = NULL) {
+  // Prevent anyone from modifying or viewing the value of stripe_customer_id via the UI.
+  if ($field_definition->getName() == 'stripe_customer_id') {
+    return AccessResult::forbidden();
+  }
+
+  return AccessResult::neutral();
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function stripe_registration_user_login($account) {
+  // Un-subscribed users should be redirected to the subscribe page, unless a
+  // redirect parameter is already defined.
+  $config = \Drupal::config('stripe_registration.settings');
+  $destination_param = \Drupal::request()->query->get('destination');
+  if ($config->get('redirect') && !$destination_param) {
+    /** @var StripeRegistrationService $stripe_registration */
+    $stripe_registration =  \Drupal::service('stripe_registration.stripe_api');
+    if (!$stripe_registration->userHasStripeSubscription($account)) {
+      $url = Url::fromRoute('stripe_registration.user.subscriptions.viewAll', ['user' => $account->id()]);
+      $response = new RedirectResponse($url->toString());
+      $response->send();
+
+      return FALSE;
+    }
+  }
+}
+
+// @todo Setup cron job to remove roles from users whose subscriptions have expired.
+
+// Licensing:
+// @todo Allow purchasing of licenses for single nodes.
+
+// allow licensing of a role or a node? abstract a la kris v?

@@ -1,0 +1,28 @@
+stripe_registration.user.subscriptions.viewAll:
+  path: 'user/{user}/stripe-subscriptions'
+  defaults:
+    _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::viewAll'
+    _title: 'Subscription'
+  requirements:
+    _access: 'TRUE'
+    user: \d+
+
+stripe_registration.stripe-subscription.cancel:
+  path: 'admin/structure/stripe-registration/stripe-subscription/{remote_id}/cancel'
+  defaults:
+    _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::cancelSubscription'
+    _title: 'Cancel  subscription'
+  requirements:
+    _access: 'TRUE'
+
+# @todo add access restrictions
+
+stripe_registration.stripe-subscription.reactivate:
+  path: 'admin/structure/stripe-registration/stripe-subscription/{remote_id}/reactivate'
+  defaults:
+    _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::reactivateSubscription'
+    _title: 'Reactivate subscription'
+  requirements:
+    _access: 'TRUE'
+
+# @todo add access restrictions

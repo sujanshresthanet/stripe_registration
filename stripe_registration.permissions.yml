@@ -1,0 +1,15 @@
+
+administer stripe registration:
+  title: 'Administer Stripe Registration'
+  description: 'Allows a user to change configuration settings for the Stripe Registration module.'
+  restrict access: true
+
+administer stripe plans:
+  title: 'Administer Stripe plans'
+  description: 'Allow to access the administration form to configure Stripe plans.'
+  restrict access: true
+
+administer stripe subscriptions:
+  title: 'Administer Stripe subscription entities'
+  description: 'Allow to access the administration form to configure Stripe subscription entities.'
+  restrict access: true
