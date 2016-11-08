@@ -12,7 +12,6 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class StripeSubscribeForm extends FormBase {
 
-
   /**
    * {@inheritdoc}
    */
@@ -36,8 +35,8 @@ class StripeSubscribeForm extends FormBase {
   }
 
   /**
-    * {@inheritdoc}
-    */
+   * {@inheritdoc}
+   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
   }

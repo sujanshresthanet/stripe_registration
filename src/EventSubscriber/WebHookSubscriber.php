@@ -3,7 +3,6 @@
 namespace Drupal\stripe_registration\EventSubscriber;
 
 use Drupal\stripe_api\Event\StripeApiWebhookEvent;
-use Drupal\stripe_registration\Entity\StripeSubscriptionEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Drupal\stripe_registration\StripeRegistrationService;
 
@@ -14,7 +13,8 @@ use Drupal\stripe_registration\StripeRegistrationService;
  */
 class WebHookSubscriber implements EventSubscriberInterface {
 
-  /** @var \Drupal\stripe_registration\StripeRegistrationService  */
+  /**
+   * @var \Drupal\stripe_registration\StripeRegistrationService*/
   protected $stripeRegApi;
 
   /**
@@ -29,7 +29,7 @@ class WebHookSubscriber implements EventSubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  static function getSubscribedEvents() {
+  static public function getSubscribedEvents() {
     $events['stripe_api.webhook'][] = ['onIncomingWebhook'];
     return $events;
   }
@@ -51,6 +51,7 @@ class WebHookSubscriber implements EventSubscriberInterface {
       // Occurs whenever a customer with no subscription is signed up for a plan.
       case 'customer.subscription.created':
         break;
+
       // Occurs whenever a customer ends their subscription.
       case 'customer.subscription.deleted':
         $remote_subscription = $data->object;
@@ -59,9 +60,11 @@ class WebHookSubscriber implements EventSubscriberInterface {
         $local_subscription->delete();
 
         break;
+
       // Occurs three days before the trial period of a subscription is scheduled to end.
       case 'customer.subscription.trial_will_end':
         break;
+
       // Occurs whenever a subscription changes. Examples would include switching from one plan to another, or switching status from trial to active.
       case 'customer.subscription.updated':
         break;

@@ -2,21 +2,15 @@
 
 namespace Drupal\stripe_registration;
 
-use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Url;
 use Drupal\stripe_api\StripeApiService;
-use Drupal\stripe_registration\Entity\StripeSubscriptionEntity;
-use Drupal\user\UserInterface;
 use Stripe\Plan;
-use Stripe\Stripe;
 use Stripe\Subscription;
-use Symfony\Component\Validator\Tests\Fixtures\EntityInterface;
 
 /**
  * Class StripeRegistrationService.
@@ -37,7 +31,8 @@ class StripeRegistrationService {
    */
   protected $entityTypeManager;
 
-  /** @var \Drupal\Core\Logger\LoggerChannelInterface */
+  /**
+   * @var \Drupal\Core\Logger\LoggerChannelInterface*/
   protected $logger;
 
   /**
@@ -117,6 +112,9 @@ class StripeRegistrationService {
     return $stripe_subscription_entities;
   }
 
+  /**
+   *
+   */
   public function loadLocalPlanMultiple() {
     $stripe_plan_entities = $this->entityTypeManager
       ->getStorage('stripe_plan')
@@ -142,6 +140,9 @@ class StripeRegistrationService {
     return $keyed_plans;
   }
 
+  /**
+   *
+   */
   public function loadRemotePlanById($plan_id) {
     $plan = $this->loadRemotePlanMultiple(['id' => $plan_id]);
 
@@ -201,6 +202,9 @@ class StripeRegistrationService {
     drupal_set_message(t('Stripe plans were synchronized. Visit %link to see synchronized plans.', ['%link' => Link::fromTextAndUrl('Stripe plan list', Url::fromUri('internal:/admin/structure/stripe-registration/stripe-plan'))->toString()]), 'status');
   }
 
+  /**
+   *
+   */
   public function syncRemoteSubscriptionToLocal($remote_id) {
     $remote_subscripton = Subscription::retrieve($remote_id);
     $local_subscription = $this->loadLocalSubscription(['subscription_id' => $remote_id]);
@@ -221,7 +225,7 @@ class StripeRegistrationService {
       'customer_id' => $subscription->customer,
       'status' => $subscription->status,
       'roles' => [],
-      'current_period_end' => [ 'value' => $current_period_end->format('U') ],
+      'current_period_end' => ['value' => $current_period_end->format('U')],
     ];
     $subscription = $this->entityTypeManager->getStorage('stripe_subscription')->create($values);
     $subscription->save();
@@ -230,26 +234,36 @@ class StripeRegistrationService {
     return $subscription;
   }
 
+  /**
+   *
+   */
   public function reactivateRemoteSubscription($remote_id) {
     // @see https://stripe.com/docs/subscriptions/guide#reactivating-canceled-subscriptions
     $subscripton = Subscription::retrieve($remote_id);
     $subscripton->plan = $subscripton->plan->id;
     $subscripton->save();
     drupal_set_message('Subscription re-activated.');
-    $this->logger->info('Re-activated remote subscription @subscription_id id.', ['@subscription_id' =>  $remote_id]);
+    $this->logger->info('Re-activated remote subscription @subscription_id id.', ['@subscription_id' => $remote_id]);
   }
 
+  /**
+   *
+   */
   public function cancelRemoteSubscription($remote_id) {
     $subscripton = Subscription::retrieve($remote_id);
     $subscripton->cancel(['at_period_end' => TRUE]);
     drupal_set_message('Subscription cancelled. It will not renew after the current pay period.');
-    $this->logger->info('Cancelled remote subscription @subscription_id id.', ['@subscription_id' =>  $remote_id]);
+    $this->logger->info('Cancelled remote subscription @subscription_id id.', ['@subscription_id' => $remote_id]);
   }
 
+  /**
+   *
+   */
   public function setLocalUserCustomerId($uid, $customer_id) {
     /** @var Customer $user */
     $user = \Drupal::entityManager()->getStorage('user')->load($uid);
     $user->set('stripe_customer_id', $customer_id);
     $user->save();
   }
+
 }

@@ -7,7 +7,6 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\stripe_registration\StripeRegistrationService;
 use Drupal\user\UserInterface;
 use Stripe\Subscription;
 
@@ -308,6 +307,10 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
 
     $this->updateUserRoles();
   }
+
+  /**
+   *
+   */
   public function updateUserRoles() {
     $plans = $this->entityTypeManager()
       ->getStorage('stripe_plan')
@@ -324,7 +327,7 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
       if (!in_array($status, ['canceled', 'unpaid'])) {
         foreach ($roles as $role) {
           $rid = $role->value;
-          //$role_entity = $this->entityTypeManager()->getStorage('user_role')->loadByProperties([''])
+          // $role_entity = $this->entityTypeManager()->getStorage('user_role')->loadByProperties([''])
           $this->getOwner()->addRole($rid);
           \Drupal::logger('stripe_registration')->info('Adding role @rid to @user.', [
             '@rid' => $rid,
@@ -369,7 +372,6 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
     return $this->save();
   }
 
-
   /**
    * Acts on deleted entities before the delete hook is invoked.
    *
@@ -389,4 +391,5 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
       $entity->updateUserRoles();
     }
   }
+
 }

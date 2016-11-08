@@ -6,7 +6,6 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Url;
 use Drupal\user\UserInterface;
-use Stripe\Subscription;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\stripe_registration\StripeRegistrationService;
 use Drupal\Core\Entity\EntityManager;
@@ -86,7 +85,7 @@ class UserSubscriptionsController extends ControllerBase {
             '#plain_text' => DrupalDateTime::createFromTimestamp($remote_subscription->current_period_start)->format('F d, Y') . ' - ' . DrupalDateTime::createFromTimestamp($remote_subscription->current_period_end)->format('F d, Y'),
           ];
           $output['subscriptions'][$remote_subscription->id]['renew'] = [
-            '#plain_text' => $remote_subscription->cancel_at_period_end ? $this->t('No') : $this->t('Yes')
+            '#plain_text' => $remote_subscription->cancel_at_period_end ? $this->t('No') : $this->t('Yes'),
           ];
 
           $output['subscriptions'][$remote_subscription->id]['operations'] = [];
@@ -104,7 +103,7 @@ class UserSubscriptionsController extends ControllerBase {
             ];
           }
           // Re-activate button.
-          elseif (REQUEST_TIME < $remote_subscription->current_period_end ){
+          elseif (REQUEST_TIME < $remote_subscription->current_period_end) {
             $output['subscriptions'][$remote_subscription->id]['operations']['reactivate'] = [
               '#type' => 'operations',
               '#links' => [
@@ -127,6 +126,9 @@ class UserSubscriptionsController extends ControllerBase {
     return $output;
   }
 
+  /**
+   *
+   */
   public function cancelSubscription() {
     $remote_id = \Drupal::request()->get('remote_id');
     $this->stripeApi->cancelRemoteSubscription($remote_id);
@@ -137,6 +139,9 @@ class UserSubscriptionsController extends ControllerBase {
     ]);
   }
 
+  /**
+   *
+   */
   public function reactivateSubscription() {
     $remote_id = \Drupal::request()->get('remote_id');
     $this->stripeApi->reactivateRemoteSubscription($remote_id);

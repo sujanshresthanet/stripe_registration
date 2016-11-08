@@ -6,7 +6,6 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\LinkGeneratorTrait;
-use Drupal\Core\Url;
 
 /**
  * Defines a class to build a listing of Stripe plan entities.
@@ -40,7 +39,6 @@ class StripePlanEntityListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    *
    * Builds the entity listing as renderable array for table.html.twig.
-   *
    */
   public function render() {
     $build = parent::render();
@@ -53,7 +51,7 @@ class StripePlanEntityListBuilder extends EntityListBuilder {
               '%link' => Link::createFromRoute('Stripe Registration configuration', 'stripe_api.admin')->toString(),
             ]
           ),
-          'colspan' => count($build['table']['#header'])
+          'colspan' => count($build['table']['#header']),
         ],
       ],
     ];

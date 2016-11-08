@@ -1,3 +1,7 @@
+/**
+ * @file
+ */
+
 Drupal.behaviors.stripe_registration = {
   attach: function (context, settings) {
     Stripe.setPublishableKey(drupalSettings.stripe_registration.publishable_key);
@@ -10,14 +14,14 @@ Drupal.behaviors.stripe_registration = {
       $(context).find('#edit-cvc').payment('formatCardCVC');
 
       // Define function for indicating client side error.
-      $.fn.toggleInputError = function(erred) {
+      $.fn.toggleInputError = function (erred) {
         this.toggleClass('error', erred);
         return this;
       };
 
       // Handle form submission.
       $form = $('input[value="' + drupalSettings.stripe_registration.form_id + '"]').parents('form');
-      $form.submit(function(event) {
+      $form.submit(function (event) {
 
         // Toggle invalid fields.
         var cardType = $.payment.cardType($('#edit-card-number').val());

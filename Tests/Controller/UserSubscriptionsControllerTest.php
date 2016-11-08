@@ -9,7 +9,6 @@ use Drupal\simpletest\WebTestBase;
  */
 class UserSubscriptionsControllerTest extends WebTestBase {
 
-
   /**
    * {@inheritdoc}
    */
