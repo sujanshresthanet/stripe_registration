@@ -11,6 +11,6 @@
     "source": "http://cgit.drupalcode.org/stripe_registration"
   },
   "require": {
-    "drupal/stripe_api": "^8"
+    "drupal/stripe_api": "^1.0.0-alpha1"
   }
 }
