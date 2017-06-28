@@ -10,6 +10,12 @@
     "issues": "https://www.drupal.org/project/issues/stripe_registration",
     "source": "http://cgit.drupalcode.org/stripe_registration"
   },
+  "repositories": {
+      "drupal": {
+          "type": "composer",
+          "url": "https://packages.drupal.org/8"
+      }
+  },
   "require": {
     "drupal/stripe_api": "^1.0.0-alpha1"
   }
