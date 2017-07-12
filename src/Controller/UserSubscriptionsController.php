@@ -62,6 +62,7 @@ class UserSubscriptionsController extends ControllerBase {
         '#type' => 'table',
         '#header' => array($this->t('Plan'), $this->t('Status'), $this->t('Current Period'), $this->t('Will renew'), $this->t('Operations')),
         '#empty' => $this->t('No subscriptions.'),
+        '#attributes' => ['class' => ['stripe-subscriptions']]
       );
 
       /** @var Subscription $remote_subscription */
