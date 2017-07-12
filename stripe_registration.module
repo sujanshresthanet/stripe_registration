@@ -227,6 +227,7 @@ function stripe_registration_submit($form, FormStateInterface $form_state) {
 
       foreach ($customer->subscriptions->data as $subscription) {
         $stripe->createLocalSubscription($subscription);
+        drupal_set_message(t("You have successfully subscribed to the @plan_name plan.", ['@plan_name' => $form_state->getValue('plan')]), 'status');
       }
     }
   }
