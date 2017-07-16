@@ -24,3 +24,9 @@ stripe_subscription.admin.structure.settings:
   description: 'Configure Stripe subscription entities'
   route_name: stripe_subscription.settings
   parent: system.admin_structure
+
+stripe_subscription.user.subscriptions:
+  title: Subscription
+  description: 'Subscription settings'
+  route_name: stripe_registration.user.subscriptions.viewAll
+  menu_name: account
