@@ -1,4 +1,4 @@
-stripe_registration.user.subscriptions.viewAll:
+stripe_registration.user.subscriptions.viewall:
   path: 'user/{user}/stripe-subscriptions'
   defaults:
     _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::viewAll'

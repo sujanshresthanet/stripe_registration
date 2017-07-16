@@ -135,7 +135,7 @@ class UserSubscriptionsController extends ControllerBase {
     $this->stripeApi->cancelRemoteSubscription($remote_id);
     $this->stripeApi->syncRemoteSubscriptionToLocal($remote_id);
 
-    return $this->redirect("stripe_registration.user.subscriptions.viewAll", [
+    return $this->redirect("stripe_registration.user.subscriptions.viewall", [
       'user' => $this->currentUser()->id(),
     ]);
   }
@@ -148,7 +148,7 @@ class UserSubscriptionsController extends ControllerBase {
     $this->stripeApi->reactivateRemoteSubscription($remote_id);
     $this->stripeApi->syncRemoteSubscriptionToLocal($remote_id);
 
-    return $this->redirect("stripe_registration.user.subscriptions.viewAll", [
+    return $this->redirect("stripe_registration.user.subscriptions.viewall", [
       'user' => $this->currentUser()->id(),
     ]);
   }

@@ -1,6 +1,6 @@
 stripe_registration.user.subscriptions:
   title: 'Subscription'
-  route_name: stripe_registration.user.subscriptions.viewAll
+  route_name: stripe_registration.user.subscriptions.viewall
   base_route: entity.user.canonical
 
 # Stripe plan routing definition

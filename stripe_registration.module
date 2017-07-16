@@ -265,7 +265,7 @@ function stripe_registration_user_login($account) {
     /** @var StripeRegistrationService $stripe_registration */
     $stripe_registration =  \Drupal::service('stripe_registration.stripe_api');
     if (!$stripe_registration->userHasStripeSubscription($account)) {
-      $url = Url::fromRoute('stripe_registration.user.subscriptions.viewAll', ['user' => $account->id()]);
+      $url = Url::fromRoute('stripe_registration.user.subscriptions.viewall', ['user' => $account->id()]);
       $response = new RedirectResponse($url->toString());
       $response->send();
 

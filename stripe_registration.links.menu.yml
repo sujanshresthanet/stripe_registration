@@ -28,5 +28,5 @@ stripe_subscription.admin.structure.settings:
 stripe_subscription.user.subscriptions:
   title: Subscription
   description: 'Subscription settings'
-  route_name: stripe_registration.user.subscriptions.viewAll
+  route_name: stripe_registration.user.subscriptions.viewall
   menu_name: account
