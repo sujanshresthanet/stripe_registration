@@ -11,7 +11,7 @@ stripe_registration.stripe-subscription.cancel:
   path: 'admin/structure/stripe-registration/stripe-subscription/{remote_id}/cancel'
   defaults:
     _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::cancelSubscription'
-    _title: 'Cancel  subscription'
+    _title: 'Cancel subscription'
   requirements:
     _access: 'TRUE'
 
@@ -26,3 +26,11 @@ stripe_registration.stripe-subscription.reactivate:
     _access: 'TRUE'
 
 # @todo add access restrictions
+
+stripe_registration.my_subscriptions:
+  path: '/user/my-subscriptions'
+  defaults:
+    _controller: '\Drupal\stripe_registration\Controller\MySubscriptions::redirectToSubscriptions'
+    _title: 'My Subscriptions'
+  requirements:
+    _permission: 'access content'

@@ -180,7 +180,7 @@ class StripeRegistrationService {
       $this->logger->info('Created @plan_id plan.', ['@plan_id' => $plan_id]);
     }
     // Delete invalid plans.
-    if ($delete) {
+    if ($delete && $plans_to_delete) {
       $entities_to_delete = [];
       foreach ($plans_to_delete as $plan_id) {
         $entities_to_delete[] = $local_plans_keyed[$plan_id];

@@ -186,14 +186,12 @@ function stripe_registration_subscribe_form(&$form, FormStateInterface $form_sta
     '#type' => 'container',
   ];
 
-  if (empty($form['actions']['submit'])) {
+  //if (empty($form['actions']['submit'])) {
     $form['actions']['#type'] = 'actions';
-    $form['actions']['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Subscribe'),
-      '#button_type' => 'primary',
-    );
-  }
+    $form['actions']['submit']['#type'] = 'submit';
+    $form['actions']['submit']['#value'] = t('Subscribe');
+    $form['actions']['submit']['#button_type'] = 'primary';
+  //}
 
   $form['actions']['submit']['#submit'][] = 'stripe_registration_submit';
 }
