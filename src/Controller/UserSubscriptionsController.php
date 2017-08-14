@@ -2,8 +2,10 @@
 
 namespace Drupal\stripe_registration\Controller;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -117,15 +119,25 @@ class UserSubscriptionsController extends ControllerBase {
           }
         }
       }
+      return $output;
     }
     else {
-      $form = $this->formBuilder()->getForm('Drupal\stripe_registration\Form\StripeSubscribeForm');
-
-      return $form;
+      return $this->redirect('stripe_registration.subscribe', ['user' => $this->currentUser()->id()]);
     }
-
-    return $output;
   }
+
+  /**
+   * SubscribeForm.
+   *
+   * @return array
+   *   Return SubscribeForm.
+   */
+  public function subscribeForm() {
+    $form = $this->formBuilder()->getForm('Drupal\stripe_registration\Form\StripeSubscribeForm');
+
+    return $form;
+  }
+
 
   /**
    *
@@ -140,17 +152,49 @@ class UserSubscriptionsController extends ControllerBase {
     ]);
   }
 
+
+  /**
+   * Checks access for a specific request.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   Run access checks for this account.
+   *
+   * @return \Drupal\Core\Access\AccessResult
+   */
+  public function accessCancelSubscription(AccountInterface $account) {
+    $remote_id = \Drupal::request()->get('remote_id');
+
+    return AccessResult::allowedIf($account->hasPermission('administer stripe subscriptions') ||
+      ($account->hasPermission('manage own stripe subscriptions') && $this->stripeApi->userHasStripeSubscription($account, $remote_id)));
+  }
+
   /**
    *
    */
   public function reactivateSubscription() {
     $remote_id = \Drupal::request()->get('remote_id');
+
     $this->stripeApi->reactivateRemoteSubscription($remote_id);
     $this->stripeApi->syncRemoteSubscriptionToLocal($remote_id);
 
     return $this->redirect("stripe_registration.user.subscriptions.viewall", [
       'user' => $this->currentUser()->id(),
     ]);
+  }
+
+  /**
+   * Checks access for a specific request.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   Run access checks for this account.
+   *
+   * @return \Drupal\Core\Access\AccessResult
+   */
+  public function accessReactivateSubscription(AccountInterface $account) {
+    $remote_id = \Drupal::request()->get('remote_id');
+
+    return AccessResult::allowedIf($account->hasPermission('administer stripe subscriptions') ||
+      ($account->hasPermission('manage own stripe subscriptions') && $this->stripeApi->userHasStripeSubscription($account, $remote_id)));
   }
 
 }

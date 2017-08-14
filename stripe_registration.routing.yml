@@ -4,7 +4,7 @@ stripe_registration.user.subscriptions.viewall:
     _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::viewAll'
     _title: 'Subscription'
   requirements:
-    _access: 'TRUE'
+    _permission: 'manage own stripe subscriptions+administer stripe subscriptions'
     user: \d+
 
 stripe_registration.stripe-subscription.cancel:
@@ -13,9 +13,7 @@ stripe_registration.stripe-subscription.cancel:
     _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::cancelSubscription'
     _title: 'Cancel subscription'
   requirements:
-    _access: 'TRUE'
-
-# @todo add access restrictions
+    _custom_access: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::accessCancelSubscription'
 
 stripe_registration.stripe-subscription.reactivate:
   path: 'admin/structure/stripe-registration/stripe-subscription/{remote_id}/reactivate'
@@ -23,9 +21,7 @@ stripe_registration.stripe-subscription.reactivate:
     _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::reactivateSubscription'
     _title: 'Reactivate subscription'
   requirements:
-    _access: 'TRUE'
-
-# @todo add access restrictions
+    _custom_access: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::accessReactivateSubscription'
 
 stripe_registration.my_subscriptions:
   path: '/user/my-subscriptions'
@@ -33,4 +29,12 @@ stripe_registration.my_subscriptions:
     _controller: '\Drupal\stripe_registration\Controller\MySubscriptions::redirectToSubscriptions'
     _title: 'My Subscriptions'
   requirements:
-    _permission: 'access content'
+    _permission: 'manage own stripe subscriptions+administer stripe subscriptions'
+
+stripe_registration.subscribe:
+  path: '/stripe_registration/subscribe'
+  defaults:
+    _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::subscribeForm'
+    _title: 'Subscribe'
+  requirements:
+    _permission: 'manage own stripe subscriptions+administer stripe subscriptions'

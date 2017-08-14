@@ -1,4 +1,3 @@
-
 administer stripe registration:
   title: 'Administer Stripe Registration'
   description: 'Allows a user to change configuration settings for the Stripe Registration module.'
@@ -13,3 +12,7 @@ administer stripe subscriptions:
   title: 'Administer Stripe subscription entities'
   description: 'Allow to access the administration form to configure Stripe subscription entities.'
   restrict access: true
+
+manage own stripe subscriptions:
+  title: 'Manage own stripe subscriptions'
+  description: 'Allows a user to subscribe to plans, and view, reactivate, or cancel own stripe subscriptions.'

@@ -9,6 +9,8 @@ use Drupal\Core\Link;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Url;
 use Drupal\stripe_api\StripeApiService;
+use function is_nan;
+use function is_null;
 use Stripe\Plan;
 use Stripe\Subscription;
 
@@ -46,16 +48,26 @@ class StripeRegistrationService {
   }
 
   /**
-   * @param UserInterface $user
+   * @param \Drupal\user\UserInterface $user
    *
    * @return bool
    */
-  public function userHasStripeSubscription($user) {
-    return !empty($user->stripe_customer_id->value);
+  public function userHasStripeSubscription($user, $remote_id = NULL) {
+
+    if (is_null($remote_id)) {
+      return !empty($user->stripe_customer_id->value);
+    }
+
+    $subscription = $this->loadLocalSubscription([
+      'subscription_id' => $remote_id,
+      'user_id' => $user->id(),
+    ]);
+
+    return (bool) $subscription;
   }
 
   /**
-   * @param UserInterface $user
+   * @param \Drupal\user\UserInterface $user
    *
    * @return bool|\Stripe\Collection
    */
@@ -82,7 +94,7 @@ class StripeRegistrationService {
   /**
    * @param array $properties
    *
-   * @return StripeSubscriptionEntity
+   * @return \Drupal\stripe_registration\Entity\StripeSubscriptionEntity|bool
    */
   public function loadLocalSubscription($properties = []) {
     $stripe_subscription_entities = $this->entityTypeManager
@@ -101,7 +113,7 @@ class StripeRegistrationService {
   /**
    * @param array $properties
    *
-   * @return StripeSubscriptionEntity[]
+   * @return \Drupal\stripe_registration\Entity\StripeSubscriptionEntity[]
    */
   public function loadLocalSubscriptionMultiple($properties = []) {
     $stripe_subscription_entities = $this->entityTypeManager
@@ -158,7 +170,7 @@ class StripeRegistrationService {
     $remote_plans = $this->loadRemotePlanMultiple();
     $local_plans = $this->entityTypeManager->getStorage('stripe_plan')->loadMultiple();
 
-    /** @var EntityInterface[] $local_plans_keyed */
+    /** @var \Drupal\Core\Entity\EntityInterface[] $local_plans_keyed */
     $local_plans_keyed = [];
     foreach ($local_plans as $local_plan) {
       $local_plans_keyed[$local_plan->plan_id->value] = $local_plan;
@@ -191,7 +203,7 @@ class StripeRegistrationService {
     }
     // Update existing plans.
     foreach ($plans_to_update as $plan_id) {
-      /** @var EntityInterface $plan */
+      /** @var \Drupal\Core\Entity\EntityInterface $plan */
       $plan = $local_plans_keyed[$plan_id];
       $plan->set('name', $remote_plans[$plan_id]->name);
       $plan->set('livemode', $remote_plans[$plan_id]->livemode == 'true');
@@ -260,7 +272,7 @@ class StripeRegistrationService {
    *
    */
   public function setLocalUserCustomerId($uid, $customer_id) {
-    /** @var Customer $user */
+    /** @var \Stripe\Customer $user */
     $user = \Drupal::entityManager()->getStorage('user')->load($uid);
     $user->set('stripe_customer_id', $customer_id);
     $user->save();
