@@ -193,13 +193,18 @@ function stripe_registration_subscribe_form(&$form, FormStateInterface $form_sta
   $form['actions']['submit']['#value'] = t('Subscribe');
   $form['actions']['submit']['#button_type'] = 'primary';
 
+  $form['actions']['submit']['#validate'][] = 'stripe_registration_validate';
   $form['actions']['submit']['#submit'][] = 'stripe_registration_submit';
 }
 
 /**
- * Submit callback for user_register_form.
+ * Validate callback for user_register_form.
  */
-function stripe_registration_submit($form, FormStateInterface $form_state) {
+function stripe_registration_validate($form, FormStateInterface $form_state) {
+  // Most form validation is performed via JavaScript. The remaining validation
+  // must be performed by the Stripe API. Unfortunately, that means that we must
+  // submit information to Stripe in the validation method. If we performed this
+  // submission in a submit handler, we would not be able to set form errors.
   /** @var \Drupal\stripe_registration\StripeRegistrationService $stripe */
   $stripe =  \Drupal::service('stripe_registration.stripe_api');
 
@@ -214,9 +219,9 @@ function stripe_registration_submit($form, FormStateInterface $form_state) {
     $uid = $form_state->getValue('uid');
     $user = \Drupal\user\Entity\User::load($uid);
     $customer = \Stripe\Customer::create(array(
-        "source" => $form_state->getValue('stripeToken'),
-        "plan" => $form_state->getValue('plan'),
-        "email" => $user->getEmail(),
+      "source" => $form_state->getValue('stripeToken'),
+      "plan" => $form_state->getValue('plan'),
+      "email" => $user->getEmail(),
     ));
 
     if ($customer instanceof Customer) {
@@ -233,12 +238,23 @@ function stripe_registration_submit($form, FormStateInterface $form_state) {
   }
   catch (\Exception $e) {
     \Drupal::logger('stripe_registration')
-      ->error(t("Could not subscribe user @uid to @plan plan, error:\n@error", [
+      ->error(t("Could not subscribe user @uid to @plan plan, error:\n@stripe_error", [
         '@uid' => $form_state->getValue('uid'),
         '@plan' => $form_state->getValue('plan'),
-        '@error' => $e->getMessage(),
+        '@stripe_error' => $e->getMessage(),
       ]));
+    drupal_set_message(t("@stripe_error", [
+      '@stripe_error' => $e->getMessage(),
+    ]), 'error');
+    $form_state->setErrorByName('stripe-messages', $e->getMessage());
   }
+}
+
+/**
+ * Submit callback for user_register_form.
+ */
+function stripe_registration_submit($form, FormStateInterface $form_state) {
+
 }
 
 /**
