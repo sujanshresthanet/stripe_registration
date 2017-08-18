@@ -186,12 +186,12 @@ function stripe_registration_subscribe_form(&$form, FormStateInterface $form_sta
     '#type' => 'container',
   ];
 
-  //if (empty($form['actions']['submit'])) {
-    $form['actions']['#type'] = 'actions';
-    $form['actions']['submit']['#type'] = 'submit';
-    $form['actions']['submit']['#value'] = t('Subscribe');
-    $form['actions']['submit']['#button_type'] = 'primary';
-  //}
+  // @todo Add validation handler.
+
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit']['#type'] = 'submit';
+  $form['actions']['submit']['#value'] = t('Subscribe');
+  $form['actions']['submit']['#button_type'] = 'primary';
 
   $form['actions']['submit']['#submit'][] = 'stripe_registration_submit';
 }
@@ -211,11 +211,13 @@ function stripe_registration_submit($form, FormStateInterface $form_state) {
       throw new \Exception("Uid is missing!");
     }
 
+    $uid = $form_state->getValue('uid');
+    $user = \Drupal\user\Entity\User::load($uid);
     $customer = \Stripe\Customer::create(array(
         "source" => $form_state->getValue('stripeToken'),
         "plan" => $form_state->getValue('plan'),
-        "email" => $form_state->get('email'))
-    );
+        "email" => $user->getEmail(),
+    ));
 
     if ($customer instanceof Customer) {
       /** @var Customer $user */
