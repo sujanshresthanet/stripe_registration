@@ -143,8 +143,10 @@ function stripe_registration_subscribe_form(&$form, FormStateInterface $form_sta
   }
 
   // By omitting a name, the user-supplied data in those fields won't be
-  // passed to your server when the form is submitted. Each element also
-  // includes a data-stripe attribute.
+  // passed to your server when the form is submitted. This is Stripe's
+  // recommended best practice. Each element also includes a data-stripe
+  // attribute added by JS and used by Stripe to identify the field. Note that
+  // we cannot make these fields required if there is no name attribute.
 
   $form['card_number'] = [
     '#type' => 'textfield',

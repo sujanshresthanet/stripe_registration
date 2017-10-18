@@ -309,6 +309,17 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function preDelete(EntityStorageInterface $storage, array $entities) {
+    /** @var \Drupal\stripe_registration\Entity\StripeSubscriptionEntity $entity */
+    foreach ($entities as $entity) {
+      $entity->updateUserRoles();
+    }
+    self::preDelete($storage, $entities);
+  }
+
+  /**
    *
    */
   public function updateUserRoles() {
