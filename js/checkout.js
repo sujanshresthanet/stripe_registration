@@ -20,8 +20,14 @@ Drupal.behaviors.stripe_registration = {
       };
 
       // Handle form submission.
-      $form = $('input[value="' + drupalSettings.stripe_registration.form_id + '"]').parents('form');
+      $form = $('input[value="' + drupalSettings.stripe_registration.form_id + '"]', context).parents('form');
+
       $form.submit(function (event) {
+
+        // Dont run stripe processing again.
+        if($form.hasClass('stripe-processed')){
+          return;
+        }
 
         // Toggle invalid fields.
         var cardType = $.payment.cardType($('#edit-card-number').val());
@@ -72,8 +78,11 @@ Drupal.behaviors.stripe_registration = {
           var token = response.id;
           $('input[name="stripeToken"]').val(token);
 
+          // Add processed class.
+          $form.addClass('stripe-processed');
+
           // Submit the form.
-          $form.get(0).submit();
+          $form.find('.form-submit').last().prop('disabled', false).click();
         }
       };
     })(jQuery);
