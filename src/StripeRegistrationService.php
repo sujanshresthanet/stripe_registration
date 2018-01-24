@@ -220,6 +220,9 @@ class StripeRegistrationService {
   public function syncRemoteSubscriptionToLocal($remote_id) {
     $remote_subscripton = Subscription::retrieve($remote_id);
     $local_subscription = $this->loadLocalSubscription(['subscription_id' => $remote_id]);
+    if (!$local_subscription) {
+      throw new \Exception("Could not find matching local subscription for remote id $remote_id.");
+    }
     $local_subscription->updateFromUpstream($remote_subscripton);
     $this->logger->info('Updated subscription entity @subscription_id.', ['@subscription_id' => $local_subscription->id()]);
   }
@@ -263,9 +266,16 @@ class StripeRegistrationService {
    */
   public function cancelRemoteSubscription($remote_id) {
     $subscripton = Subscription::retrieve($remote_id);
-    $subscripton->cancel(['at_period_end' => TRUE]);
-    drupal_set_message('Subscription cancelled. It will not renew after the current pay period.');
-    $this->logger->info('Cancelled remote subscription @subscription_id id.', ['@subscription_id' => $remote_id]);
+    if (!$subscripton->status == 'canceled') {
+      $subscripton->cancel(['at_period_end' => TRUE]);
+      drupal_set_message('Subscription cancelled. It will not renew after the current pay period.');
+      $this->logger->info('Cancelled remote subscription @subscription_id.',
+        ['@subscription_id' => $remote_id]);
+    }
+    else {
+      $this->logger->info('Remote subscription @subscription_id was already cancelled.',
+        ['@subscription_id' => $remote_id]);
+    }
   }
 
   /**

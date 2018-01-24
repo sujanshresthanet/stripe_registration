@@ -309,17 +309,6 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public static function preDelete(EntityStorageInterface $storage, array $entities) {
-    /** @var \Drupal\stripe_registration\Entity\StripeSubscriptionEntity $entity */
-    foreach ($entities as $entity) {
-      $entity->updateUserRoles();
-    }
-    self::preDelete($storage, $entities);
-  }
-
-  /**
    *
    */
   public function updateUserRoles() {
@@ -340,9 +329,10 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
           $rid = $role->value;
           // $role_entity = $this->entityTypeManager()->getStorage('user_role')->loadByProperties([''])
           $this->getOwner()->addRole($rid);
-          \Drupal::logger('stripe_registration')->info('Adding role @rid to @user.', [
+          \Drupal::logger('stripe_registration')->info('Adding role @rid to @user for subscription @sub.', [
             '@rid' => $rid,
             '@user' => $this->getOwner()->label(),
+            '@sub' => $this->id(),
           ]);
         }
       }
@@ -383,22 +373,22 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
     return $this->save();
   }
 
+
   /**
-   * Acts on deleted entities before the delete hook is invoked.
-   *
-   * Used after the entities are deleted but before invoking the delete hook.
-   *
-   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
-   *   The entity storage object.
-   * @param \Drupal\Core\Entity\EntityInterface[] $entities
-   *   An array of entities.
+   * {@inheritdoc}
    */
-  public static function postDelete(EntityStorageInterface $storage, array $entities) {
-    /** @var StripeRegistrationService $stripe_api */
+  public static function preDelete(EntityStorageInterface $storage, array $entities) {
+    /** @var \Drupal\stripe_registration\StripeRegistrationService $stripe_api */
     $stripe_api = \Drupal::service('stripe_registration.stripe_api');
     /** @var StripeSubscriptionEntity $entity */
     foreach ($entities as $entity) {
-      $stripe_api->cancelRemoteSubscription($entity->get('subscription_id')->value);
+      $remote_id = $entity->get('subscription_id')->value;
+      try {
+        $stripe_api->cancelRemoteSubscription($remote_id);
+      }
+      catch (\Exception $e) {
+
+      }
       $entity->updateUserRoles();
     }
   }

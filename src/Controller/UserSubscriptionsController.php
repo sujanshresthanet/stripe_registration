@@ -138,7 +138,6 @@ class UserSubscriptionsController extends ControllerBase {
     return $form;
   }
 
-
   /**
    *
    */

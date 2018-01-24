@@ -2,6 +2,7 @@
 
 namespace Drupal\stripe_registration\EventSubscriber;
 
+use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\stripe_api\Event\StripeApiWebhookEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Drupal\stripe_registration\StripeRegistrationService;
@@ -18,12 +19,17 @@ class WebHookSubscriber implements EventSubscriberInterface {
   protected $stripeRegApi;
 
   /**
+   * @var \Drupal\Core\Logger\LoggerChannelInterface*/
+  protected $logger;
+
+  /**
    * WebHookSubscriber constructor.
    *
    * @param \Drupal\stripe_registration\StripeRegistrationService $stripe_registration_stripe_api
    */
-  public function __construct(StripeRegistrationService $stripe_registration_stripe_api) {
+  public function __construct(StripeRegistrationService $stripe_registration_stripe_api, LoggerChannelInterface $logger) {
     $this->stripeRegApi = $stripe_registration_stripe_api;
+    $this->logger = $logger;
   }
 
   /**
@@ -45,6 +51,8 @@ class WebHookSubscriber implements EventSubscriberInterface {
     $data = $event->data;
     $stripe_event = $event->event;
 
+    $this->logger->info("Event Subscriber reacting to @type event:\n @event", ['@type' => $event->type, '@event' => (string) $stripe_event]);
+
     // React to subscription life cycle events.
     // @see https://stripe.com/docs/subscriptions/lifecycle
     switch ($type) {
@@ -55,9 +63,15 @@ class WebHookSubscriber implements EventSubscriberInterface {
       // Occurs whenever a customer ends their subscription.
       case 'customer.subscription.deleted':
         $remote_subscription = $data->object;
-        /** @var StripeSubscriptionEntity $local_subscription */
-        $local_subscription = $this->stripeRegApi->loadLocalSubscription(['subscription_id' => $remote_subscription->id]);
-        $local_subscription->delete();
+        try {
+          /** @var \Drupal\stripe_registration\Entity\StripeSubscriptionEntity $local_subscription */
+          $this->stripeRegApi->syncRemoteSubscriptionToLocal($remote_subscription->id);
+          $local_subscription = $this->stripeRegApi->loadLocalSubscription(['subscription_id' => $remote_subscription->id]);
+          $local_subscription->delete();
+        }
+        catch (\Throwable $e) {
+          $this->logger->error("Failed to delete local subscription: @exception", ['@exception' => $e->getMessage()]);
+        }
 
         break;
 

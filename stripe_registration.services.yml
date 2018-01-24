@@ -9,7 +9,7 @@ services:
 
   stripe_registration.webhook_subscriber:
     class: Drupal\stripe_registration\EventSubscriber\WebHookSubscriber
-    arguments: ["@stripe_registration.stripe_api"]
+    arguments: ["@stripe_registration.stripe_api", "@logger.channel.stripe_registration"]
     tags:
       - { name: event_subscriber }
 
