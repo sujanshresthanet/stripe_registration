@@ -6,24 +6,12 @@ entity.stripe_plan.collection:
   parent: system.admin_structure
   weight: 100
 
-stripe_plan.admin.structure.settings:
-  title: Stripe plan settings
-  description: 'Stripe plans'
-  route_name: stripe_plan.settings
-  parent: system.admin_structure
-
 entity.stripe_subscription.collection:
   title: 'Stripe subscription list'
   route_name: entity.stripe_subscription.collection
   description: 'List Stripe subscription entities'
   parent: system.admin_structure
   weight: 100
-
-stripe_subscription.admin.structure.settings:
-  title: Stripe subscription settings
-  description: 'Configure Stripe subscription entities'
-  route_name: stripe_subscription.settings
-  parent: system.admin_structure
 
 stripe_subscription.user.subscriptions:
   title: My subscriptions
