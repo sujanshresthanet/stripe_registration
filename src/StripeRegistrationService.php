@@ -234,7 +234,17 @@ class StripeRegistrationService {
     // @todo ensure that a subscription with this id does not already exist.
     // @todo if subscription exists, trigger postSave on subscription entity to cause role assignment.
     $current_period_end = DrupalDateTime::createFromTimestamp($subscription->current_period_end);
+
+    $user_entity = $this->entityTypeManager->getStorage('user')->loadByProperties(['stripe_customer_id' => $subscription->customer]);
+    $uid = 0;
+
+    if (is_array($user_entity) && !empty($user_entity)) {
+      $user_entity = array_pop($user_entity);
+      $uid = $user_entity->id();
+    }
+
     $values = [
+      'user_id' => $uid,
       'plan_id' => $subscription->plan->id,
       'subscription_id' => $subscription->id,
       'customer_id' => $subscription->customer,
