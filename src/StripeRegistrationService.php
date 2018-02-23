@@ -266,7 +266,7 @@ class StripeRegistrationService {
    */
   public function cancelRemoteSubscription($remote_id) {
     $subscripton = Subscription::retrieve($remote_id);
-    if (!$subscripton->status == 'canceled') {
+    if ($subscripton->status != 'canceled') {
       $subscripton->cancel(['at_period_end' => TRUE]);
       drupal_set_message('Subscription cancelled. It will not renew after the current pay period.');
       $this->logger->info('Cancelled remote subscription @subscription_id.',
