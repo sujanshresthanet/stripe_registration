@@ -37,3 +37,15 @@ function stripe_registration_create_stripe_customer_id_field() {
     $field->save();
   }
 }
+
+/**
+ * Add 'data' field to Stripe Plan entities.
+ */
+function stripe_registration_update_8001() {
+  $storage_definition = \Drupal\Core\Field\BaseFieldDefinition::create('map')
+    ->setLabel(t('Plan data'))
+    ->setDescription(t('Array of raw plan data from Stripe.'));
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('data', 'stripe_plan', 'stripe_registration', $storage_definition);
+}

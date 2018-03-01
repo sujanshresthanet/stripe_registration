@@ -188,6 +188,7 @@ class StripeRegistrationService {
         'plan_id' => $remote_plans[$plan_id]->id,
         'name' => $remote_plans[$plan_id]->name,
         'livemode' => $remote_plans[$plan_id]->livemode == 'true',
+        'data' => array ($remote_plans[$plan_id]),
       ])->save();
       $this->logger->info('Created @plan_id plan.', ['@plan_id' => $plan_id]);
     }
@@ -205,8 +206,12 @@ class StripeRegistrationService {
     foreach ($plans_to_update as $plan_id) {
       /** @var \Drupal\Core\Entity\EntityInterface $plan */
       $plan = $local_plans_keyed[$plan_id];
-      $plan->set('name', $remote_plans[$plan_id]->name);
-      $plan->set('livemode', $remote_plans[$plan_id]->livemode == 'true');
+      /** @var Plan $remote_plan */
+      $remote_plan = $remote_plans[$plan_id];
+      $plan->set('name', $remote_plan->name);
+      $plan->set('livemode', $remote_plan->livemode == 'true');
+      $data = $remote_plan->jsonSerialize();
+      $plan->set('data', $data);
       $plan->save();
       $this->logger->info('Updated @plan_id plan.', ['@plan_id' => $plan_id]);
     }

@@ -187,6 +187,10 @@ class StripePlanEntity extends ContentEntityBase implements StripePlanEntityInte
         'weight' => -4,
       ));
 
+    $fields['data'] = BaseFieldDefinition::create('map')
+      ->setLabel(t('Plan data'))
+      ->setDescription(t('Array of raw plan data from Stripe.'));
+
     /** @var \Drupal\user\RoleInterface[] $roles */
     $roles = user_roles(TRUE);
     $role_options = [];
