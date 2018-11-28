@@ -259,7 +259,7 @@ class StripeRegistrationService {
     ];
     $subscription = $this->entityTypeManager->getStorage('stripe_subscription')->create($values);
     $subscription->save();
-    $this->logger->info('Created @subscription_id plan.', ['@subscription_id' => $subscription->id]);
+    $this->logger->info('Created @subscription_id plan.', ['@subscription_id' => $subscription->id()]);
 
     return $subscription;
   }
