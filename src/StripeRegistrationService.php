@@ -12,6 +12,7 @@ use Drupal\stripe_api\StripeApiService;
 use function is_nan;
 use function is_null;
 use Stripe\Plan;
+use Stripe\Product;
 use Stripe\Subscription;
 
 /**
@@ -146,6 +147,8 @@ class StripeRegistrationService {
     // Re-key array.
     $keyed_plans = [];
     foreach ($plans->data as $plan) {
+      $product = Product::retrieve($plan->product);
+      $plan->name = $product->name;
       $keyed_plans[$plan->id] = $plan;
     }
 
