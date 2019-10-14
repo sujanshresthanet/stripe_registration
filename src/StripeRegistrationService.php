@@ -269,9 +269,8 @@ class StripeRegistrationService {
    */
   public function reactivateRemoteSubscription($remote_id) {
     // @see https://stripe.com/docs/subscriptions/guide#reactivating-canceled-subscriptions
-    $subscripton = Subscription::retrieve($remote_id);
-    $subscripton->plan = $subscripton->plan->id;
-    $subscripton->save();
+    $subscription = Subscription::retrieve($remote_id);
+    Subscription::update($remote_id, ['cancel_at_period_end' => false, 'items' => [['id' => $subscription->items->data[0]->id, 'plan' => $subscription->plan->id]]]);
     drupal_set_message('Subscription re-activated.');
     $this->logger->info('Re-activated remote subscription @subscription_id id.', ['@subscription_id' => $remote_id]);
   }
@@ -280,9 +279,9 @@ class StripeRegistrationService {
    *
    */
   public function cancelRemoteSubscription($remote_id) {
-    $subscripton = Subscription::retrieve($remote_id);
-    if ($subscripton->status != 'canceled') {
-      $subscripton->cancel(['at_period_end' => TRUE]);
+    $subscription = Subscription::retrieve($remote_id);
+    if ($subscription->status != 'canceled') {
+      Subscription::update($remote_id,['cancel_at_period_end' => TRUE]);
       drupal_set_message('Subscription cancelled. It will not renew after the current pay period.');
       $this->logger->info('Cancelled remote subscription @subscription_id.',
         ['@subscription_id' => $remote_id]);
