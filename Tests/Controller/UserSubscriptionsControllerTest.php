@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\stripe_registration\Tests;
+namespace Drupal\Tests\stripe_registration\Controller;
 
 use Drupal\simpletest\WebTestBase;
 

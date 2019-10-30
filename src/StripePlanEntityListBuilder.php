@@ -14,8 +14,6 @@ use Drupal\Core\Routing\LinkGeneratorTrait;
  */
 class StripePlanEntityListBuilder extends EntityListBuilder {
 
-  use LinkGeneratorTrait;
-
   /**
    * {@inheritdoc}
    */

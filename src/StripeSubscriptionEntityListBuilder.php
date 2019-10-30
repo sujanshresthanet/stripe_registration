@@ -14,8 +14,6 @@ use Drupal\Core\Url;
  */
 class StripeSubscriptionEntityListBuilder extends EntityListBuilder {
 
-  use LinkGeneratorTrait;
-
   /**
    * {@inheritdoc}
    */
@@ -31,7 +29,7 @@ class StripeSubscriptionEntityListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\stripe_registration\Entity\StripeSubscriptionEntity */
     $row['id'] = $entity->id();
-    $row['name'] = $this->l(
+    $row['name'] = \Drupal\Core\Link::fromTextAndUrl(
       $entity->label(),
       new Url(
         'entity.stripe_subscription.edit_form', array(

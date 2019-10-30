@@ -232,13 +232,13 @@ function stripe_registration_validate($form, FormStateInterface $form_state) {
 
     if ($customer instanceof Customer) {
       /** @var Customer $user */
-      $user = \Drupal::entityManager()->getStorage('user')->load($form_state->getValue('uid'));
+      $user = \Drupal::entityTypeManager()->getStorage('user')->load($form_state->getValue('uid'));
       $user->set('stripe_customer_id', $customer->id);
       $user->save();
 
       foreach ($customer->subscriptions->data as $subscription) {
         $stripe->createLocalSubscription($subscription);
-        drupal_set_message(t("You have successfully subscribed to the @plan_name plan.", ['@plan_name' => $form_state->getValue('plan')]), 'status');
+        $this->messenger()->addMessage(t("You have successfully subscribed to the @plan_name plan.", ['@plan_name' => $form_state->getValue('plan')]), 'status');
       }
     }
   }
@@ -249,7 +249,7 @@ function stripe_registration_validate($form, FormStateInterface $form_state) {
         '@plan' => $form_state->getValue('plan'),
         '@stripe_error' => $e->getMessage(),
       ]));
-    drupal_set_message(t("@stripe_error", [
+    $this->messenger()->addMessage(t("@stripe_error", [
       '@stripe_error' => $e->getMessage(),
     ]), 'error');
     $form_state->setErrorByName('stripe-messages', $e->getMessage());

@@ -32,13 +32,13 @@ class StripeSubscriptionEntityForm extends ContentEntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label Stripe subscription.', [
+          $this->messenger()->addMessage($this->t('Created the %label Stripe subscription.', [
           '%label' => $entity->label(),
         ]));
         break;
 
       default:
-        drupal_set_message($this->t('Saved the %label Stripe subscription.', [
+          $this->messenger()->addMessage($this->t('Saved the %label Stripe subscription.', [
           '%label' => $entity->label(),
         ]));
     }

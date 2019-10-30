@@ -219,7 +219,7 @@ class StripeRegistrationService {
       $this->logger->info('Updated @plan_id plan.', ['@plan_id' => $plan_id]);
     }
 
-    drupal_set_message(t('Stripe plans were synchronized. Visit %link to see synchronized plans.', ['%link' => Link::fromTextAndUrl('Stripe plan list', Url::fromUri('internal:/admin/structure/stripe-registration/stripe-plan'))->toString()]), 'status');
+    $this->messenger()->addMessage(t('Stripe plans were synchronized. Visit %link to see synchronized plans.', ['%link' => Link::fromTextAndUrl('Stripe plan list', Url::fromUri('internal:/admin/structure/stripe-registration/stripe-plan'))->toString()]), 'status');
   }
 
   /**
@@ -274,7 +274,7 @@ class StripeRegistrationService {
     // @see https://stripe.com/docs/subscriptions/guide#reactivating-canceled-subscriptions
     $subscription = Subscription::retrieve($remote_id);
     Subscription::update($remote_id, ['cancel_at_period_end' => false, 'items' => [['id' => $subscription->items->data[0]->id, 'plan' => $subscription->plan->id]]]);
-    drupal_set_message('Subscription re-activated.');
+    $this->messenger()->addMessage('Subscription re-activated.');
     $this->logger->info('Re-activated remote subscription @subscription_id id.', ['@subscription_id' => $remote_id]);
   }
 
@@ -285,7 +285,7 @@ class StripeRegistrationService {
     $subscription = Subscription::retrieve($remote_id);
     if ($subscription->status != 'canceled') {
       Subscription::update($remote_id,['cancel_at_period_end' => TRUE]);
-      drupal_set_message('Subscription cancelled. It will not renew after the current pay period.');
+      $this->messenger()->addMessage('Subscription cancelled. It will not renew after the current pay period.');
       $this->logger->info('Cancelled remote subscription @subscription_id.',
         ['@subscription_id' => $remote_id]);
     }
@@ -300,7 +300,7 @@ class StripeRegistrationService {
    */
   public function setLocalUserCustomerId($uid, $customer_id) {
     /** @var \Stripe\Customer $user */
-    $user = \Drupal::entityManager()->getStorage('user')->load($uid);
+    $user = \Drupal::entityTypeManager()->getStorage('user')->load($uid);
     $user->set('stripe_customer_id', $customer_id);
     $user->save();
   }
