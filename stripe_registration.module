@@ -213,6 +213,7 @@ function stripe_registration_validate($form, FormStateInterface $form_state) {
   // submission in a submit handler, we would not be able to set form errors.
   /** @var \Drupal\stripe_registration\StripeRegistrationService $stripe */
   $stripe =  \Drupal::service('stripe_registration.stripe_api');
+  $messenger = \Drupal::messenger();
 
   try {
     if (empty($form_state->getValue('stripeToken'))) {
@@ -238,7 +239,7 @@ function stripe_registration_validate($form, FormStateInterface $form_state) {
 
       foreach ($customer->subscriptions->data as $subscription) {
         $stripe->createLocalSubscription($subscription);
-        $this->messenger()->addMessage(t("You have successfully subscribed to the @plan_name plan.", ['@plan_name' => $form_state->getValue('plan')]), 'status');
+        $messenger->addMessage(t("You have successfully subscribed to the @plan_name plan.", ['@plan_name' => $form_state->getValue('plan')]), 'status');
       }
     }
   }
@@ -249,7 +250,7 @@ function stripe_registration_validate($form, FormStateInterface $form_state) {
         '@plan' => $form_state->getValue('plan'),
         '@stripe_error' => $e->getMessage(),
       ]));
-    $this->messenger()->addMessage(t("@stripe_error", [
+    $messenger->addMessage(t("@stripe_error", [
       '@stripe_error' => $e->getMessage(),
     ]), 'error');
     $form_state->setErrorByName('stripe-messages', $e->getMessage());
