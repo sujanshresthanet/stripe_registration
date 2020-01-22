@@ -14,6 +14,7 @@ use function is_null;
 use Stripe\Plan;
 use Stripe\Product;
 use Stripe\Subscription;
+use Drupal\Core\Messenger\MessengerTrait;
 
 /**
  * Class StripeRegistrationService.
@@ -21,6 +22,8 @@ use Stripe\Subscription;
  * @package Drupal\stripe_registration
  */
 class StripeRegistrationService {
+
+  use MessengerTrait;
 
   /**
    * Drupal\Core\Config\ConfigFactory definition.
