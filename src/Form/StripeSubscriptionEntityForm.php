@@ -2,7 +2,10 @@
 
 namespace Drupal\stripe_registration\Form;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\EntityRepositoryInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -21,24 +24,34 @@ class StripeSubscriptionEntityForm extends ContentEntityForm {
    */
   protected $messenger;
 
-  /**
-   * Constructor for StripePlanEntityForm.
-   *
-   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
-   *   The messenger service..
-   */
-  public function __construct(MessengerInterface $messenger) {
-    $this->messenger = $messenger;
-  }
+    /**
+     * Constructor for StripePlanEntityForm.
+     *
+     * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+     *   The messenger service.
+     * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
+     *   The entity repository service.
+     * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+     *   The entity type bundle service.
+     * @param \Drupal\Component\Datetime\TimeInterface $time
+     *   The time service.
+     */
+    public function __construct(MessengerInterface $messenger, EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL) {
+        parent::__construct($entity_repository, $entity_type_bundle_info, $time);
+        $this->messenger = $messenger;
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('messenger')
-    );
-  }
+    /**
+     * {@inheritdoc}
+     */
+    public static function create(ContainerInterface $container) {
+        return new static(
+          $container->get('messenger'),
+          $container->get('entity.repository'),
+          $container->get('entity_type.bundle.info'),
+          $container->get('datetime.time')
+        );
+    }
 
   /**
    * {@inheritdoc}
