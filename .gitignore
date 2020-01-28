@@ -2,3 +2,4 @@
 *.patch
 *.orig
 *.rej
+vendor

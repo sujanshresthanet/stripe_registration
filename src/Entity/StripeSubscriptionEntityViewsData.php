@@ -16,11 +16,11 @@ class StripeSubscriptionEntityViewsData extends EntityViewsData implements Entit
   public function getViewsData() {
     $data = parent::getViewsData();
 
-    $data['stripe_subscription']['table']['base'] = array(
+    $data['stripe_subscription']['table']['base'] = [
       'field' => 'id',
       'title' => $this->t('Stripe subscription'),
       'help' => $this->t('The Stripe subscription ID.'),
-    );
+    ];
 
     return $data;
   }

@@ -76,9 +76,9 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
    */
   public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     parent::preCreate($storage_controller, $values);
-    $values += array(
+    $values += [
       'user_id' => \Drupal::currentUser()->id(),
-    );
+    ];
   }
 
   /**
@@ -154,125 +154,125 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
       ->setTranslatable(TRUE)
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'author',
         'weight' => 0,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'weight' => 5,
-        'settings' => array(
+        'settings' => [
           'match_operator' => 'CONTAINS',
           'size' => '60',
           'autocomplete_type' => 'tags',
           'placeholder' => '',
-        ),
-      ))
+        ],
+      ])
       ->setRequired(TRUE);
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
       ->setDescription(t('The name of the Stripe subscription entity.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => -4,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -4,
-      ));
+      ]);
 
     $fields['subscription_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Subscription ID'))
       ->setDescription(t('The Stripe ID for this subscription.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => -4,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -4,
-      ))
+      ])
       ->setRequired(TRUE);
 
     $fields['plan_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Plan ID'))
       ->setDescription(t('The Stripe ID for this plan.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => -4,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -4,
-      ))
+      ])
       ->setRequired(TRUE);
 
     $fields['customer_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Customer ID'))
       ->setDescription(t('The Stripe ID for this subscription\'s customer.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => -4,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -4,
-      ))
+      ])
       ->setRequired(TRUE);
 
     // Possible values are trialing, active, past_due, canceled, or unpaid.
     $fields['status'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Status'))
       ->setDescription(t('The Stripe status for this subscription.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => -4,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -4,
-      ))
+      ])
       ->setRequired(TRUE);
 
     $fields['current_period_end'] = BaseFieldDefinition::create('timestamp')
       ->setLabel(t('Current period end'))
       ->setDescription(t('The end of the current pay period for this subscription.'))
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'datetime_timestamp',
         'weight' => 4,
-      ))
+      ])
       ->setCardinality(1)
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -280,10 +280,10 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
     $fields['cancel_at_period_end'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Cancel at period end'))
       ->setDescription(t('Whether this subscription will be cancelled at the end of the current pay period.'))
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'boolean_checkbox',
         'weight' => 4,
-      ))
+      ])
       ->setCardinality(1)
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
@@ -353,7 +353,7 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
   }
 
   /**
-   * @param Subscription $remote_subscription
+   * @param \Stripe\Subscription $remote_subscription
    *
    * @return
    *   SAVED_NEW or SAVED_UPDATED is returned depending on the operation
@@ -372,7 +372,6 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
     $this->set('current_period_end', $remote_subscription->current_period_end);
     return $this->save();
   }
-
 
   /**
    * {@inheritdoc}

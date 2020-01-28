@@ -15,7 +15,7 @@ class StripeSubscriptionEntityDeleteForm extends ContentEntityDeleteForm {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Are you sure you want to delete subscription %myentity?', array('%myentity' => $this->entity->label()));
+    return t('Are you sure you want to delete subscription %myentity?', ['%myentity' => $this->entity->label()]);
   }
 
   /**

@@ -13,11 +13,11 @@ class UserSubscriptionsControllerTest extends WebTestBase {
    * {@inheritdoc}
    */
   public static function getInfo() {
-    return array(
+    return [
       'name' => "stripe_registration UserSubscriptionsController's controller functionality",
       'description' => 'Test Unit for module stripe_registration and controller UserSubscriptionsController.',
       'group' => 'Other',
-    );
+    ];
   }
 
   /**

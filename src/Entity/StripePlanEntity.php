@@ -63,9 +63,9 @@ class StripePlanEntity extends ContentEntityBase implements StripePlanEntityInte
    */
   public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     parent::preCreate($storage_controller, $values);
-    $values += array(
+    $values += [
       'user_id' => \Drupal::currentUser()->id(),
-    );
+    ];
   }
 
   /**
@@ -137,55 +137,55 @@ class StripePlanEntity extends ContentEntityBase implements StripePlanEntityInte
     $fields['plan_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Stripe Plan ID'))
       ->setDescription(t('The Stripe ID for this plan.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
       ->setCardinality(1)
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => -4,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -4,
-      ));
+      ]);
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
       ->setDescription(t('The name of the Stripe plan entity.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
-      ))
+      ])
       ->setDefaultValue('')
       ->setCardinality(1)
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => -4,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'string_textfield',
         'weight' => -4,
-      ));
+      ]);
 
     $fields['livemode'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Live mode'))
       ->setDescription(t('If this plan is listed as live on Stripe.'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
         'on_label' => new TranslatableMarkup('Live'),
-      ))
+      ])
       ->setDefaultValue('')
       ->setCardinality(1)
-      ->setDisplayOptions('form', array(
+      ->setDisplayOptions('form', [
         'type' => 'boolean_checkbox',
         'weight' => -4,
-      ));
+      ]);
 
     $fields['data'] = BaseFieldDefinition::create('map')
       ->setLabel(t('Plan data'))
@@ -201,25 +201,25 @@ class StripePlanEntity extends ContentEntityBase implements StripePlanEntityInte
     $fields['roles'] = BaseFieldDefinition::create('list_string')
       ->setLabel(t('Roles'))
       ->setDescription(t('Roles that will be granted to users actively subscribed to this plan. Warning: these roles will be removed from users who have cancelled or unpaid subscriptions for this plan!'))
-      ->setSettings(array(
+      ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
         'allowed_values' => $role_options,
-      ))
+      ])
       ->setCardinality(-1)
       ->setRequired(FALSE)
       ->setDefaultValue('')
-      ->setDisplayOptions('view', array(
+      ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'string',
         'weight' => -4,
         'size' => 10,
-      ))
-      ->setDisplayOptions('form', array(
+      ])
+      ->setDisplayOptions('form', [
         'type' => 'options_select',
         'weight' => -4,
         'size' => 10,
-      ));
+      ]);
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))

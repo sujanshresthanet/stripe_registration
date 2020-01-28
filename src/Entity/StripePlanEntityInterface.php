@@ -52,4 +52,5 @@ interface StripePlanEntityInterface extends ContentEntityInterface, EntityChange
    *   The called Stripe subscription entity.
    */
   public function setCreatedTime($timestamp);
+
 }

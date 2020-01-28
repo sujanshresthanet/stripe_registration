@@ -60,12 +60,12 @@ class UserSubscriptionsController extends ControllerBase {
 
     if ($user->stripe_customer_id->value && $user_subscriptions = $this->stripeApi->loadRemoteSubscriptionByUser($user)) {
 
-      $output['subscriptions'] = array(
+      $output['subscriptions'] = [
         '#type' => 'table',
-        '#header' => array($this->t('Plan'), $this->t('Status'), $this->t('Current Period'), $this->t('Will renew'), $this->t('Operations')),
+        '#header' => [$this->t('Plan'), $this->t('Status'), $this->t('Current Period'), $this->t('Will renew'), $this->t('Operations')],
         '#empty' => $this->t('No subscriptions.'),
-        '#attributes' => ['class' => ['stripe-subscriptions']]
-      );
+        '#attributes' => ['class' => ['stripe-subscriptions']],
+      ];
 
       /** @var Subscription $remote_subscription */
       foreach ($user_subscriptions->data as $remote_subscription) {
@@ -150,7 +150,6 @@ class UserSubscriptionsController extends ControllerBase {
       'user' => $this->currentUser()->id(),
     ]);
   }
-
 
   /**
    * Checks access for a specific request.

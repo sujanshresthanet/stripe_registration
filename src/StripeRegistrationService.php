@@ -9,7 +9,6 @@ use Drupal\Core\Link;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Url;
 use Drupal\stripe_api\StripeApiService;
-use function is_nan;
 use function is_null;
 use Stripe\Plan;
 use Stripe\Product;
@@ -146,7 +145,6 @@ class StripeRegistrationService {
     $plans = Plan::all($args);
 
     // @todo handle no results case.
-
     // Re-key array.
     $keyed_plans = [];
     foreach ($plans->data as $plan) {
@@ -194,7 +192,7 @@ class StripeRegistrationService {
         'plan_id' => $remote_plans[$plan_id]->id,
         'name' => $remote_plans[$plan_id]->name,
         'livemode' => $remote_plans[$plan_id]->livemode == 'true',
-        'data' => array ($remote_plans[$plan_id]),
+        'data' => [$remote_plans[$plan_id]],
       ])->save();
       $this->logger->info('Created @plan_id plan.', ['@plan_id' => $plan_id]);
     }
@@ -212,7 +210,7 @@ class StripeRegistrationService {
     foreach ($plans_to_update as $plan_id) {
       /** @var \Drupal\Core\Entity\EntityInterface $plan */
       $plan = $local_plans_keyed[$plan_id];
-      /** @var Plan $remote_plan */
+      /** @var \Stripe\Plan $remote_plan */
       $remote_plan = $remote_plans[$plan_id];
       $plan->set('name', $remote_plan->name);
       $plan->set('livemode', $remote_plan->livemode == 'true');
@@ -276,7 +274,7 @@ class StripeRegistrationService {
   public function reactivateRemoteSubscription($remote_id) {
     // @see https://stripe.com/docs/subscriptions/guide#reactivating-canceled-subscriptions
     $subscription = Subscription::retrieve($remote_id);
-    Subscription::update($remote_id, ['cancel_at_period_end' => false, 'items' => [['id' => $subscription->items->data[0]->id, 'plan' => $subscription->plan->id]]]);
+    Subscription::update($remote_id, ['cancel_at_period_end' => FALSE, 'items' => [['id' => $subscription->items->data[0]->id, 'plan' => $subscription->plan->id]]]);
     $this->messenger()->addMessage('Subscription re-activated.');
     $this->logger->info('Re-activated remote subscription @subscription_id id.', ['@subscription_id' => $remote_id]);
   }
@@ -287,7 +285,7 @@ class StripeRegistrationService {
   public function cancelRemoteSubscription($remote_id) {
     $subscription = Subscription::retrieve($remote_id);
     if ($subscription->status != 'canceled') {
-      Subscription::update($remote_id,['cancel_at_period_end' => TRUE]);
+      Subscription::update($remote_id, ['cancel_at_period_end' => TRUE]);
       $this->messenger()->addMessage('Subscription cancelled. It will not renew after the current pay period.');
       $this->logger->info('Cancelled remote subscription @subscription_id.',
         ['@subscription_id' => $remote_id]);

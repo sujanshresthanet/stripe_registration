@@ -5,7 +5,6 @@ namespace Drupal\stripe_registration;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Link;
-use Drupal\Core\Routing\LinkGeneratorTrait;
 
 /**
  * Defines a class to build a listing of Stripe plan entities.

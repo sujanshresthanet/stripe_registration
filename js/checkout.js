@@ -25,7 +25,7 @@ Drupal.behaviors.stripe_registration = {
       $form.submit(function (event) {
 
         // Dont run stripe processing again.
-        if($form.hasClass('stripe-processed')){
+        if ($form.hasClass('stripe-processed')) {
           return;
         }
 

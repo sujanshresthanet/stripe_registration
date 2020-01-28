@@ -2,9 +2,9 @@
 
 namespace Drupal\stripe_registration;
 
+use Drupal\Core\Link;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
-use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\Core\Url;
 
 /**
@@ -29,12 +29,12 @@ class StripeSubscriptionEntityListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\stripe_registration\Entity\StripeSubscriptionEntity */
     $row['id'] = $entity->id();
-    $row['name'] = \Drupal\Core\Link::fromTextAndUrl(
+    $row['name'] = Link::fromTextAndUrl(
       $entity->label(),
       new Url(
-        'entity.stripe_subscription.edit_form', array(
+        'entity.stripe_subscription.edit_form', [
           'stripe_subscription' => $entity->id(),
-        )
+        ]
       )
     );
     return $row + parent::buildRow($entity);
