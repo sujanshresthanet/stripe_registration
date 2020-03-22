@@ -62,7 +62,13 @@ class UserSubscriptionsController extends ControllerBase {
 
       $output['subscriptions'] = [
         '#type' => 'table',
-        '#header' => [$this->t('Plan'), $this->t('Status'), $this->t('Current Period'), $this->t('Will renew'), $this->t('Operations')],
+        '#header' => [
+          $this->t('Plan'),
+          $this->t('Status'),
+          $this->t('Current Period'),
+          $this->t('Will renew'),
+          $this->t('Operations'),
+        ],
         '#empty' => $this->t('No subscriptions.'),
         '#attributes' => ['class' => ['stripe-subscriptions']],
       ];
@@ -139,7 +145,7 @@ class UserSubscriptionsController extends ControllerBase {
   }
 
   /**
-   *
+   * Cancel subscription.
    */
   public function cancelSubscription() {
     $remote_id = \Drupal::request()->get('remote_id');
@@ -158,6 +164,7 @@ class UserSubscriptionsController extends ControllerBase {
    *   Run access checks for this account.
    *
    * @return \Drupal\Core\Access\AccessResult
+   *   TRUE if the user is allowed to cancel the subscription.
    */
   public function accessCancelSubscription(AccountInterface $account) {
     $remote_id = \Drupal::request()->get('remote_id');
@@ -167,7 +174,7 @@ class UserSubscriptionsController extends ControllerBase {
   }
 
   /**
-   *
+   * Reactivate subscription.
    */
   public function reactivateSubscription() {
     $remote_id = \Drupal::request()->get('remote_id');
@@ -187,6 +194,7 @@ class UserSubscriptionsController extends ControllerBase {
    *   Run access checks for this account.
    *
    * @return \Drupal\Core\Access\AccessResult
+   *   TRUE if the user is allowed to reactivate a subscription.
    */
   public function accessReactivateSubscription(AccountInterface $account) {
     $remote_id = \Drupal::request()->get('remote_id');

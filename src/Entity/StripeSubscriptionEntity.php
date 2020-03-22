@@ -229,7 +229,7 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
 
     $fields['customer_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Customer ID'))
-      ->setDescription(t('The Stripe ID for this subscription\'s customer.'))
+      ->setDescription(t("The Stripe ID for this subscription's customer."))
       ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,
@@ -309,7 +309,7 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
   }
 
   /**
-   *
+   * Update user roles.
    */
   public function updateUserRoles() {
     $plans = $this->entityTypeManager()
@@ -352,14 +352,18 @@ class StripeSubscriptionEntity extends ContentEntityBase implements StripeSubscr
     }
   }
 
-  /**
-   * @param \Stripe\Subscription $remote_subscription
-   *
-   * @return
-   *   SAVED_NEW or SAVED_UPDATED is returned depending on the operation
-   *   performed.
-   */
-  public function updateFromUpstream($remote_subscription = NULL) {
+    /**
+     * Update local subscription from upstream subscription.
+     *
+     * @param \Stripe\Subscription $remote_subscription
+     *   The remote Strip subscription.
+     *
+     * @return int
+     *   SAVED_NEW or SAVED_UPDATED is returned depending on the operation
+     *   performed.
+     * @throws \Drupal\Core\Entity\EntityStorageException
+     */
+  public function updateFromUpstream(Subscription $remote_subscription = NULL) {
     if (!$remote_subscription) {
       $remote_subscription = Subscription::retrieve($this->subscription_id);
     }

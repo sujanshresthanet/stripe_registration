@@ -51,9 +51,13 @@ class StripeRegistrationService {
   }
 
   /**
+   * Check if a given user has a stripe subscription.
+   *
    * @param \Drupal\user\UserInterface $user
+   *   The user.
    *
    * @return bool
+   *  TRUE if the user has a subscrption.
    */
   public function userHasStripeSubscription($user, $remote_id = NULL) {
 
@@ -70,19 +74,28 @@ class StripeRegistrationService {
   }
 
   /**
+   * Loads a user's remote subscription.
+   *
    * @param \Drupal\user\UserInterface $user
+   *   The user.
    *
    * @return bool|\Stripe\Collection
+   *   A collection of subscriptions.
    */
   public function loadRemoteSubscriptionByUser($user) {
     return $this->loadRemoteSubscriptionMultiple(['customer' => $user->stripe_customer_id->value]);
   }
 
-  /**
-   * @param array $args
-   *
-   * @return bool|\Stripe\Collection
-   */
+    /**
+     * Load multiple remote subscriptions.
+     *
+     * @param array $args
+     *   Arguments by which to filter the subscriptions.
+     *
+     * @return bool|\Stripe\Collection
+     *   A collection of subscriptions.
+     * @throws \Stripe\Error\Api
+     */
   public function loadRemoteSubscriptionMultiple($args = []) {
     // @todo add try, catch.
     $subscriptions = Subscription::all($args);
@@ -95,9 +108,13 @@ class StripeRegistrationService {
   }
 
   /**
+   * Load a local subscription.
+   *
    * @param array $properties
+   *   Local properties by which to filter the subscriptions.
    *
    * @return \Drupal\stripe_registration\Entity\StripeSubscriptionEntity|bool
+   *   A Stripe subscription entity, or else FALSE.
    */
   public function loadLocalSubscription($properties = []) {
     $stripe_subscription_entities = $this->entityTypeManager
@@ -114,9 +131,13 @@ class StripeRegistrationService {
   }
 
   /**
+   * Load multiple local subscriptions.
+   *
    * @param array $properties
+   *   Local properties by which to filter the subscriptions.
    *
    * @return \Drupal\stripe_registration\Entity\StripeSubscriptionEntity[]
+   *   An arroy of Stripe subscription entity.
    */
   public function loadLocalSubscriptionMultiple($properties = []) {
     $stripe_subscription_entities = $this->entityTypeManager
@@ -128,7 +149,11 @@ class StripeRegistrationService {
   }
 
   /**
+   * Load multiple local plans.
    *
+   * @return \Drupal\Core\Entity\EntityInterface[]
+   *   An array of entity objects indexed by their IDs. Returns an empty array
+   *   if no matching entities are found.
    */
   public function loadLocalPlanMultiple() {
     $stripe_plan_entities = $this->entityTypeManager
@@ -139,6 +164,11 @@ class StripeRegistrationService {
   }
 
   /**
+   * Load multiple remote plans.
+   *
+   * @param array $args
+   *   An array of arguments by which to filter the remote plans.
+   *
    * @return \Stripe\Plan[]
    */
   public function loadRemotePlanMultiple($args = []) {
