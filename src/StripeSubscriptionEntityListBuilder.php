@@ -40,4 +40,30 @@ class StripeSubscriptionEntityListBuilder extends EntityListBuilder {
     return $row + parent::buildRow($entity);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  protected function getDefaultOperations(EntityInterface $entity) {
+    $operations = parent::getDefaultOperations($entity);
+
+    // Cancel button.
+    if ($entity->get('cancel_at_period_end')->isEmpty() || !$entity->get('cancel_at_period_end')->first()->get('value')->getValue()) {
+      $operations['cancel'] = [
+        'title' => $this->t('Cancel'),
+        'weight' => 1,
+        'url' => Url::fromRoute('stripe_registration.stripe-subscription.cancel', ['remote_id' => $entity->id()]),
+      ];
+    }
+    // Re-activate button.
+    elseif ($entity->get('current_period_end')->isEmpty() || REQUEST_TIME < $entity->get('current_period_end')->first()->get('value')->getValue()) {
+      $operations['reactivate'] = [
+        'title' => $this->t('Re-activate'),
+        'weight' => 1,
+        'url' => Url::fromRoute('stripe_registration.stripe-subscription.reactivate', ['remote_id' => $entity->id()]),
+      ];
+    }
+
+    return $operations;
+  }
+
 }
