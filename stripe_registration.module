@@ -95,6 +95,24 @@ function stripe_registration_sync_plans_submit(array &$form, FormStateInterface 
 }
 
 /**
+ * Implements hook_entity_extra_field_info().
+ */
+function stripe_registration_entity_extra_field_info() {
+  $fields['user']['user']['form']['stripe_registration_plans'] = [
+    'label' => t('Stripe registration plan'),
+    'description' => t('a plan selector.'),
+    'weight' => 5,
+  ];
+  $fields['user']['user']['form']['stripe_registration_payment'] = [
+    'label' => t('Stripe registration payment'),
+    'description' => t('Payment field.'),
+    'weight' => 5,
+  ];
+
+  return $fields;
+}
+
+/**
  * @param $form
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  */
@@ -135,7 +153,7 @@ function stripe_registration_subscribe_form(&$form, FormStateInterface $form_sta
     }
   }
 
-  $form['plan'] = [
+  $form['stripe_registration_plans']['plan'] = [
     '#type' => 'select',
     '#title' => t('Plan'),
     '#options' => $options,
@@ -143,7 +161,7 @@ function stripe_registration_subscribe_form(&$form, FormStateInterface $form_sta
   ];
   if (count($options) == 1) {
     $first_option = reset($options);
-    $form['plan']['#default_value'] = $first_option;
+    $form['stripe_registration_plans']['plan']['#default_value'] = $first_option;
   }
 
   // By omitting a name, the user-supplied data in those fields won't be
@@ -152,7 +170,7 @@ function stripe_registration_subscribe_form(&$form, FormStateInterface $form_sta
   // attribute added by JS and used by Stripe to identify the field. Note that
   // we cannot make these fields required if there is no name attribute.
 
-  $form['card_number'] = [
+  $form['stripe_registration_payment']['card_number'] = [
     '#type' => 'textfield',
     '#title' => t('Card number'),
     '#attributes' => [
@@ -160,13 +178,13 @@ function stripe_registration_subscribe_form(&$form, FormStateInterface $form_sta
     ],
     '#name' => '',
   ];
-  $form['exp'] = [
+  $form['stripe_registration_payment']['exp'] = [
     '#type' => 'textfield',
     '#title' => t('MM / YYYY'),
     '#name' => '',
     '#size' => 9,
   ];
-  $form['cvc'] = [
+  $form['stripe_registration_payment']['cvc'] = [
     '#type' => 'textfield',
     '#title' => t('CVC'),
     '#attributes' => [
@@ -175,7 +193,7 @@ function stripe_registration_subscribe_form(&$form, FormStateInterface $form_sta
     '#name' => '',
     '#size' => 4,
   ];
-  $form['address_zip'] = [
+  $form['stripe_registration_payment']['address_zip'] = [
     '#type' => 'textfield',
     '#title' => t('Billing zip'),
     '#attributes' => [
