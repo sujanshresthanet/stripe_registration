@@ -51,7 +51,10 @@ class WebHookSubscriber implements EventSubscriberInterface {
     $data = $event->data;
     $stripe_event = $event->event;
 
-    $this->logger->info("Event Subscriber reacting to @type event:\n @event", ['@type' => $event->type, '@event' => (string) $stripe_event]);
+    if (\Drupal::config('stripe_api.settings')->get('log_webhooks')) {
+      $this->logger->info("Event Subscriber reacting to @type event:\n @event",
+        ['@type' => $event->type, '@event' => (string)$stripe_event]);
+    }
 
     // React to subscription life cycle events.
     // @see https://stripe.com/docs/subscriptions/lifecycle
