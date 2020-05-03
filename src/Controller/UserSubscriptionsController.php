@@ -7,7 +7,9 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
+use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
+use Stripe\Subscription;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\stripe_registration\StripeRegistrationService;
 use Drupal\Core\Entity\EntityManager;
@@ -57,9 +59,7 @@ class UserSubscriptionsController extends ControllerBase {
    *   Return Hello string.
    */
   public function viewAll(UserInterface $user) {
-
-    if ($user->stripe_customer_id->value && $user_subscriptions = $this->stripeApi->loadRemoteSubscriptionByUser($user)) {
-
+    if ($user_subscriptions = $this->getUserRemoteActiveSubscriptions($user->id())) {
       $output['subscriptions'] = [
         '#type' => 'table',
         '#header' => [
@@ -74,7 +74,7 @@ class UserSubscriptionsController extends ControllerBase {
       ];
 
       /** @var Subscription $remote_subscription */
-      foreach ($user_subscriptions->data as $remote_subscription) {
+      foreach ($user_subscriptions as $remote_subscription) {
         $local_subscription = $this->stripeApi->loadLocalSubscription(['subscription_id' => $remote_subscription->id]);
         // Attempt to create the subscription locally.
         if (!$local_subscription) {
@@ -110,9 +110,8 @@ class UserSubscriptionsController extends ControllerBase {
                 ],
               ],
             ];
-          }
-          // Re-activate button.
-          elseif (REQUEST_TIME < $remote_subscription->current_period_end) {
+          } // Re-activate button.
+          else if (REQUEST_TIME < $remote_subscription->current_period_end) {
             $output['subscriptions'][$remote_subscription->id]['operations']['reactivate'] = [
               '#type' => 'operations',
               '#links' => [
@@ -126,8 +125,7 @@ class UserSubscriptionsController extends ControllerBase {
         }
       }
       return $output;
-    }
-    else {
+    } else {
       return $this->redirect('stripe_registration.subscribe', ['user' => $this->currentUser()->id()]);
     }
   }
@@ -135,10 +133,14 @@ class UserSubscriptionsController extends ControllerBase {
   /**
    * SubscribeForm.
    *
-   * @return array
+   * @return array|mixed
    *   Return SubscribeForm.
    */
   public function subscribeForm() {
+    if ($this->getUserRemoteActiveSubscriptions($this->currentUser()->id())) {
+      return $this->redirect('stripe_registration.user.subscriptions.viewall', ['user' => $this->currentUser()->id()]);
+    }
+
     $form = $this->formBuilder()->getForm('Drupal\stripe_registration\Form\StripeSubscribeForm');
 
     return $form;
@@ -201,6 +203,34 @@ class UserSubscriptionsController extends ControllerBase {
 
     return AccessResult::allowedIf($account->hasPermission('administer stripe subscriptions') ||
       ($account->hasPermission('manage own stripe subscriptions') && $this->stripeApi->userHasStripeSubscription($account, $remote_id)));
+  }
+
+
+  /**
+   * Check if user has any remote active subscription
+   * @param int $user_id
+   *   User to check for.
+   *
+   * @return bool|array
+   *   Return false if no active subscriptions, or else return array of subscriptions.
+   */
+  public function getUserRemoteActiveSubscriptions(int $user_id) {
+    /** @var UserInterface $user */
+    $user = User::load($user_id);
+    $users_remote_active_subscriptions = [];
+    $user_stripe_customer_id = $user->stripe_customer_id->value ?? NULL;
+    if ($user_stripe_customer_id) {
+      $user_subscriptions = $this->stripeApi->loadRemoteSubscriptionByUser($user);
+      $users_remote_active_subscriptions = array_filter($user_subscriptions->data, function ($subscription) {
+        return $subscription->status === 'active';
+      });
+    }
+
+    if (empty($users_remote_active_subscriptions)) {
+      return NULL;
+    }
+
+    return $users_remote_active_subscriptions;
   }
 
 }
