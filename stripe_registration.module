@@ -256,22 +256,29 @@ function stripe_registration_validate($form, FormStateInterface $form_state) {
       $user->save();
 
       foreach ($customer->subscriptions->data as $subscription) {
-        $stripe->createLocalSubscription($subscription);
-        $messenger->addMessage(t("You have successfully subscribed to the @plan_name plan.", ['@plan_name' => $form_state->getValue('plan')]), 'status');
+        if ($subscription->status === 'active') {
+          $stripe->createLocalSubscription($subscription);
+          $messenger->addMessage(t("You have successfully subscribed to the @plan_name plan.", ['@plan_name' => $form_state->getValue('plan')]), 'status');
+        } else {
+          throw new Exception($subscription->status);
+        }
       }
     }
-  }
-  catch (\Exception $e) {
+  } catch (\Exception $e) {
     \Drupal::logger('stripe_registration')
-      ->error(t("Could not subscribe user @uid to @plan plan, error:\n@stripe_error", [
+      ->error(t("Could not subscribe user @uid to @plan plan, error:\n@stripe_error.", [
         '@uid' => $form_state->getValue('uid'),
         '@plan' => $form_state->getValue('plan'),
         '@stripe_error' => $e->getMessage(),
       ]));
+
+    $message = t("Subscription could not be activated, please try again. Message received: @error", ['@error' => $e->getMessage()]);
+
     $messenger->addMessage(t("@stripe_error", [
-      '@stripe_error' => $e->getMessage(),
+      '@stripe_error' => $message,
     ]), 'error');
-    $form_state->setErrorByName('stripe-messages', $e->getMessage());
+
+    $form_state->setErrorByName('stripe-messages', $message);
   }
 }
 
@@ -279,7 +286,7 @@ function stripe_registration_validate($form, FormStateInterface $form_state) {
  * Submit callback for user_register_form.
  */
 function stripe_registration_submit($form, FormStateInterface $form_state) {
-
+  $form_state->setRedirectUrl(new Url('stripe_registration.my_subscriptions'));
 }
 
 /**
