@@ -85,7 +85,7 @@ class UserSubscriptionsController extends ControllerBase {
         if ($local_subscription && empty($remote_subscription->ended_at)) {
 
           $output['subscriptions'][$remote_subscription->id]['plan'] = [
-            '#plain_text' => $remote_subscription->plan->name,
+            '#plain_text' => $remote_subscription->plan->nickname,
           ];
           $output['subscriptions'][$remote_subscription->id]['status'] = [
             '#plain_text' => $remote_subscription->status,
