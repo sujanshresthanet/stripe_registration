@@ -258,7 +258,7 @@ function stripe_registration_validate($form, FormStateInterface $form_state) {
       foreach ($customer->subscriptions->data as $subscription) {
         if ($subscription->status === 'active') {
           $stripe->createLocalSubscription($subscription);
-          $messenger->addMessage(t("You have successfully subscribed to the @plan_name plan.", ['@plan_name' => $form_state->getValue('plan')]), 'status');
+          $messenger->addMessage(t("You have successfully subscribed to the @plan_name plan.", ['@plan_name' => $subscription->plan->nickname]), 'status');
         } else {
           throw new Exception($subscription->status);
         }
