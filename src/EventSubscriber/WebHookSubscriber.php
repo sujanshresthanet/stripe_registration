@@ -84,6 +84,8 @@ class WebHookSubscriber implements EventSubscriberInterface {
 
       // Occurs whenever a subscription changes. Examples would include switching from one plan to another, or switching status from trial to active.
       case 'customer.subscription.updated':
+        $remote_subscription = $data->object;
+        $this->stripeRegApi->syncRemoteSubscriptionToLocal($remote_subscription->id);
         break;
     }
 
