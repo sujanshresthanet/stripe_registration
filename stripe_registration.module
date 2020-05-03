@@ -322,7 +322,27 @@ function stripe_registration_user_login($account) {
   }
 }
 
-// @todo Setup cron job to remove roles from users whose subscriptions have expired.
+/**
+ * Implementes hook_cron(). Use this to sync users whose subscription has expired.
+ */
+function stripe_registration_cron() {
+  $expired_subscription_ids = Drupal::entityQuery('stripe_subscription')
+    ->condition('status', 'active')
+    ->condition('current_period_end', time(), '<')
+    ->range(0, 10)
+    ->execute();
+
+  /** @var StripeRegistrationService $stripe */
+  $stripe = \Drupal::service('stripe_registration.stripe_api');
+
+  foreach ($expired_subscription_ids as $subscription_id) {
+    try {
+      $stripe->syncRemoteSubscriptionToLocal($subscription_id);
+    } catch (\Exception $exception) {
+      Drupal::logger('stripe_registration')->error('Something went wrong: ' . $exception->getMessage());
+    }
+  }
+}
 
 // Licensing:
 // @todo Allow purchasing of licenses for single nodes.
