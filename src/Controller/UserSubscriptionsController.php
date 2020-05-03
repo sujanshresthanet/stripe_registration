@@ -219,11 +219,14 @@ class UserSubscriptionsController extends ControllerBase {
     $user = User::load($user_id);
     $users_remote_active_subscriptions = [];
     $user_stripe_customer_id = $user->stripe_customer_id->value ?? NULL;
+
     if ($user_stripe_customer_id) {
       $user_subscriptions = $this->stripeApi->loadRemoteSubscriptionByUser($user);
-      $users_remote_active_subscriptions = array_filter($user_subscriptions->data, function ($subscription) {
-        return $subscription->status === 'active';
-      });
+      if($user_subscriptions) {
+        $users_remote_active_subscriptions = array_filter($user_subscriptions->data, function ($subscription) {
+          return $subscription->status === 'active';
+        });
+      }
     }
 
     if (empty($users_remote_active_subscriptions)) {
