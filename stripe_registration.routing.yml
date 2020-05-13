@@ -1,5 +1,5 @@
 stripe_registration.user.subscriptions.viewall:
-  path: 'user/{user}/stripe-subscriptions'
+  path: 'user/{user}/subscriptions'
   defaults:
     _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::viewAll'
     _title: 'Subscription'
@@ -24,7 +24,7 @@ stripe_registration.stripe-subscription.reactivate:
     _custom_access: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::accessReactivateSubscription'
 
 stripe_registration.my_subscriptions:
-  path: '/user/my-subscriptions'
+  path: '/user/subscriptions'
   defaults:
     _controller: '\Drupal\stripe_registration\Controller\MySubscriptions::redirectToSubscriptions'
     _title: 'My Subscriptions'
@@ -32,7 +32,7 @@ stripe_registration.my_subscriptions:
     _permission: 'manage own stripe subscriptions+administer stripe subscriptions'
 
 stripe_registration.subscribe:
-  path: '/stripe_registration/subscribe'
+  path: '/user/subscribe'
   defaults:
     _controller: '\Drupal\stripe_registration\Controller\UserSubscriptionsController::subscribeForm'
     _title: 'Subscribe'
