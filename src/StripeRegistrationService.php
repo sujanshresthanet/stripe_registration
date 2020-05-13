@@ -201,7 +201,7 @@ class StripeRegistrationService {
    */
   public function syncPlans($delete = FALSE) {
     // @todo Handle pagination here.
-    $remote_plans = $this->loadRemotePlanMultiple();
+    $remote_plans = $this->loadRemotePlanMultiple(['active' => true]);
     $local_plans = $this->entityTypeManager->getStorage('stripe_plan')->loadMultiple();
 
     /** @var \Drupal\Core\Entity\EntityInterface[] $local_plans_keyed */

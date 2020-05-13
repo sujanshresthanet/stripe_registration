@@ -147,8 +147,8 @@ function stripe_registration_subscribe_form(&$form, FormStateInterface $form_sta
   foreach ($plans as $plan) {
     if ($plan->livemode->value == $is_live_mode) {
       $options[$plan->plan_id->value] = $plan->name->value;
-      if ($plan->data) {
-        $form['#attached']['drupalSettings']['stripe_registration']['plans'][$plan->name->value] = $plan->data->getValue()[0];
+      if ($plan->data && isset($plan->data->getValue()[0])) {
+        $form['#attached']['drupalSettings']['stripe_registration']['plans'][$plan->name->value] = $plan->data->getValue();
       }
     }
   }
